@@ -1,0 +1,5 @@
+Nume: b, Tip:int, Const?:0
+Nume: a, Tip:string, Const?:0
+Nume: b, Tip:string, Const?:0
+Nume: c, Tip:string, Const?:0
+Nume: b, Tip:Mystruct, Const?:0
