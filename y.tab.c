@@ -78,7 +78,7 @@ int yydebug=1;
 
 struct Tip_Date* now_declaring = NULL;
 
-void new_entry(char* nume, int is_const, char* tip, char* valoare);
+void new_entry(char* nume, int is_const, char* tip, char* valoare, int size);
 void export_sy_table();
 
 
@@ -577,12 +577,12 @@ static const yytype_uint8 yyrline[] =
        0,    34,    34,    37,    38,    41,    42,    45,    46,    49,
       50,    51,    54,    55,    58,    59,    62,    63,    64,    65,
       66,    69,    70,    71,    72,    73,    74,    75,    78,    79,
-      82,    86,    87,    91,    94,    95,    96,    99,   103,   106,
-     107,   111,   112,   113,   114,   119,   120,   121,   124,   127,
-     128,   129,   130,   133,   134,   135,   136,   139,   140,   143,
-     146,   149,   152,   155,   158,   159,   160,   161,   164,   165,
-     166,   169,   172,   173,   174,   175,   176,   177,   178,   179,
-     180,   181,   182,   183
+      82,    86,    90,    94,   100,   101,   102,   105,   109,   112,
+     113,   117,   118,   119,   120,   125,   126,   127,   130,   133,
+     134,   135,   136,   139,   140,   141,   142,   145,   146,   149,
+     152,   155,   158,   161,   164,   165,   166,   167,   170,   171,
+     172,   175,   178,   179,   180,   181,   182,   183,   184,   185,
+     186,   187,   188,   189
 };
 #endif
 
@@ -1558,106 +1558,112 @@ yyreduce:
 #line 82 "limbaj.y"
                           {
 				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-1].strval), (yyvsp[0].intval));
-				new_entry((yyvsp[-1].strval), now_declaring->is_const, now_declaring->tip, 0);
+				new_entry((yyvsp[-1].strval), now_declaring->is_const, now_declaring->tip, 0, (yyvsp[0].intval));
 			}
 #line 1564 "y.tab.c"
     break;
 
   case 31:
 #line 86 "limbaj.y"
-                                                  {printf("%s\n",(yyvsp[-3].strval));}
-#line 1570 "y.tab.c"
+                                                  {
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-3].strval), (yyvsp[-2].intval));
+				new_entry((yyvsp[-3].strval), now_declaring->is_const, now_declaring->tip, /*$4*/0, (yyvsp[-2].intval));
+			}
+#line 1573 "y.tab.c"
     break;
 
   case 32:
-#line 87 "limbaj.y"
+#line 90 "limbaj.y"
                                                {
 			printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-1].strval), (yyvsp[0].intval));
-			new_entry((yyvsp[-1].strval), now_declaring->is_const, now_declaring->tip, 0);
+			new_entry((yyvsp[-1].strval), now_declaring->is_const, now_declaring->tip, 0, (yyvsp[0].intval));
 			}
-#line 1579 "y.tab.c"
+#line 1582 "y.tab.c"
     break;
 
   case 33:
-#line 91 "limbaj.y"
-                                                               {printf("%s\n",(yyvsp[-3].strval));}
-#line 1585 "y.tab.c"
-    break;
-
-  case 63:
-#line 155 "limbaj.y"
-                                               {printf("if\n");}
+#line 94 "limbaj.y"
+                                                               {
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-3].strval), (yyvsp[-2].intval));
+				new_entry((yyvsp[-3].strval), now_declaring->is_const, now_declaring->tip, /*$6*/0, (yyvsp[-2].intval));
+			}
 #line 1591 "y.tab.c"
     break;
 
-  case 72:
-#line 172 "limbaj.y"
-                                 {}
+  case 63:
+#line 161 "limbaj.y"
+                                               {printf("if\n");}
 #line 1597 "y.tab.c"
     break;
 
-  case 73:
-#line 173 "limbaj.y"
-                         {}
+  case 72:
+#line 178 "limbaj.y"
+                                 {}
 #line 1603 "y.tab.c"
     break;
 
-  case 74:
-#line 174 "limbaj.y"
+  case 73:
+#line 179 "limbaj.y"
                          {}
 #line 1609 "y.tab.c"
     break;
 
-  case 75:
-#line 175 "limbaj.y"
+  case 74:
+#line 180 "limbaj.y"
                          {}
 #line 1615 "y.tab.c"
     break;
 
-  case 76:
-#line 176 "limbaj.y"
-                    {}
+  case 75:
+#line 181 "limbaj.y"
+                         {}
 #line 1621 "y.tab.c"
     break;
 
-  case 77:
-#line 177 "limbaj.y"
-      {printf("Nr : |%d|\n",(yyvsp[0].intval));}
+  case 76:
+#line 182 "limbaj.y"
+                    {}
 #line 1627 "y.tab.c"
     break;
 
-  case 78:
-#line 178 "limbaj.y"
-          {printf("Str : |%s|\n",(yyvsp[0].strval));}
+  case 77:
+#line 183 "limbaj.y"
+      {printf("Nr : |%d|\n",(yyvsp[0].intval));}
 #line 1633 "y.tab.c"
     break;
 
-  case 79:
-#line 179 "limbaj.y"
-         {printf("Float : |%f|\n",(yyvsp[0].floatval));}
+  case 78:
+#line 184 "limbaj.y"
+          {printf("Str : |%s|\n",(yyvsp[0].strval));}
 #line 1639 "y.tab.c"
     break;
 
-  case 80:
-#line 180 "limbaj.y"
-        {printf("Char : |%c|\n",(yyvsp[0].charval));}
+  case 79:
+#line 185 "limbaj.y"
+         {printf("Float : |%f|\n",(yyvsp[0].floatval));}
 #line 1645 "y.tab.c"
     break;
 
-  case 81:
-#line 181 "limbaj.y"
-        {printf("Bool : |%d|\n",(yyvsp[0].intval));}
+  case 80:
+#line 186 "limbaj.y"
+        {printf("Char : |%c|\n",(yyvsp[0].charval));}
 #line 1651 "y.tab.c"
     break;
 
-  case 82:
-#line 182 "limbaj.y"
-          {}
+  case 81:
+#line 187 "limbaj.y"
+        {printf("Bool : |%d|\n",(yyvsp[0].intval));}
 #line 1657 "y.tab.c"
     break;
 
+  case 82:
+#line 188 "limbaj.y"
+          {}
+#line 1663 "y.tab.c"
+    break;
 
-#line 1661 "y.tab.c"
+
+#line 1667 "y.tab.c"
 
       default: break;
     }
@@ -1889,7 +1895,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 185 "limbaj.y"
+#line 191 "limbaj.y"
 
 void yyerror(char * s){
   printf("eroare: %s la linia:%d\n",s,yylineno);

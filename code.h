@@ -2,6 +2,7 @@ struct simbol{
 	char* nume;
 	struct Tip_Date* tip;
 	char* valoare;
+    int size;
 };
 struct tabela_simboluri {
 	struct simbol entries[300];

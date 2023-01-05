@@ -9,7 +9,7 @@ int yydebug=1;
 
 struct Tip_Date* now_declaring = NULL;
 
-void new_entry(char* nume, int is_const, char* tip, char* valoare);
+void new_entry(char* nume, int is_const, char* tip, char* valoare, int size);
 void export_sy_table();
 
 %}
@@ -81,14 +81,20 @@ lista_array : /*epsilon*/ {$$ = 1;}
 
 lista_id : ID lista_array {
 				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2);
-				new_entry($1, now_declaring->is_const, now_declaring->tip, 0);
+				new_entry($1, now_declaring->is_const, now_declaring->tip, 0, $2);
 			}
-		 | ID lista_array ASSIGN expresie {printf("%s\n",$1);}
+		 | ID lista_array ASSIGN expresie {
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2);
+				new_entry($1, now_declaring->is_const, now_declaring->tip, /*$4*/0, $2);
+			}
 		 | lista_id ',' ID lista_array {
 			printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4);
-			new_entry($3, now_declaring->is_const, now_declaring->tip, 0);
+			new_entry($3, now_declaring->is_const, now_declaring->tip, 0, $4);
 			}
-		 | lista_id ',' ID lista_array ASSIGN expresie {printf("%s\n",$3);}
+		 | lista_id ',' ID lista_array ASSIGN expresie {
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4);
+				new_entry($3, now_declaring->is_const, now_declaring->tip, /*$6*/0, $4);
+			}
 		 ;
 
 lista_param : /*epsilon*/

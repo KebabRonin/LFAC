@@ -4,34 +4,38 @@
 
 static struct tabela_simboluri sy_table;
 
-void new_entry(char* nume, int is_const, char* tip, char* valoare) {
+void new_entry(char* nume, int is_const, char* tip, char* valoare, int size) {
 	struct simbol newentry;
     printf("Entered new entry\n");
 	newentry.nume = strdup(nume);
 	newentry.tip->tip = strdup(tip);
 	newentry.tip->is_const = is_const;
+    newentry.size = size;
 
 	if(0 == strcmp(tip,"int")) {
-		newentry.valoare = (char*) malloc(sizeof(int));
+		newentry.valoare = (char*) malloc(sizeof(int) * size);
         if (valoare != 0)
     		*((int*)newentry.valoare) = *((int*) valoare);
         else 
             *((int*)newentry.valoare) = 0;
 	}
 	else if(0 == strcmp(tip,"bool")) {
-		newentry.valoare = malloc(sizeof(char));
+		newentry.valoare = malloc(sizeof(char) * size);
 		if (valoare != 0)
     		*((char*)newentry.valoare) = *((char*) valoare);
         else 
             *((char*)newentry.valoare) = 0;
 	}
 	else if(0 == strcmp(tip,"float")) {
-		newentry.valoare = malloc(sizeof(float));
-		*(newentry.valoare) = *((float*) valoare);
+		newentry.valoare = malloc(sizeof(float) * size);
+		if (valoare != 0)
+    		*((float*)newentry.valoare) = *((float*) valoare);
+        else 
+            *((float*)newentry.valoare) = 0;
 	}
 	else if(0 == strcmp(tip,"char")) {
-		newentry.valoare = malloc(sizeof(char));
-		*(newentry.valoare) = *((char*) valoare);
+		newentry.valoare = malloc(sizeof(char) * size);
+		*((char*)newentry.valoare) = *((char*) valoare);
 	}
 	else if(0 == strcmp(tip,"string")) {
         if (valoare != 0)
@@ -56,8 +60,12 @@ void export_sy_table() {
     for( int i = 0; i < sy_table.nr_entries; ++i) {
         printf("sak\n");
         //bzero(entry, 299);
-        sprintf(entry, "Nume: %s, Tip:%s, Const?:%d\n", sy_table.entries[i].nume, sy_table.entries[i].tip->tip, sy_table.entries[i].tip->is_const);
-        printf("%s\n",entry);
+        sprintf(entry, "Nume: %s, Tip:%s, Const?:%d, size:%d\n", 
+                                        sy_table.entries[i].nume, 
+                                        sy_table.entries[i].tip->tip, 
+                                        sy_table.entries[i].tip->is_const,
+                                        sy_table.entries[i].size);
+        //printf("%s\n",entry);
         if ( 0 > write(fd, entry, strlen(entry))) {
             perror("write");
         }

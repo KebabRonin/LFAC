@@ -1,7 +1,7 @@
 _global
 
 int b;
-string a,b,c[3][100];
+float a := 1,b,c[3][100];
 struct Mystruct b;
 _fnc
 
