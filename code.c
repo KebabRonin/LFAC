@@ -4,9 +4,9 @@
 #include "code.h"
 
 static struct tabela_simboluri sy_table;
+static struct tabela_functii   fn_table;
 
-void new_entry(char* nume, int is_const, char* tip, char* valoare, struct MatrixInfo* matrix) {
-    printf("%s\n",tip);
+void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix) {
 	struct simbol newentry;
     newentry.tip = malloc(sizeof(struct Tip_Date));
     printf("Entered new entry\n");
@@ -16,18 +16,18 @@ void new_entry(char* nume, int is_const, char* tip, char* valoare, struct Matrix
     if(matrix==NULL)
     {
         printf("Matrix null\n");
-        newentry.size= malloc(sizeof(struct MatrixInfo));
-        newentry.size->nr_paranteze = 0;
+        newentry.tip->size= malloc(sizeof(struct list));
+        newentry.tip->size->nr_dimensiuni = 0;
     }
     else
     {
-        newentry.size = matrix;
+        newentry.tip->size = matrix;
     }
 
     int size = 1;
-    for(int i=0;i<newentry.size->nr_paranteze;i++)
+    for(int i=0;i<newentry.tip->size->nr_dimensiuni;i++)
     {
-        size=size*newentry.size->dimensiune[i];
+        size=size*(*((int*)(newentry.tip->size->dimensiune[i])));
     }
 
 	if(0 == strcmp(tip,"int")) {
@@ -67,6 +67,31 @@ void new_entry(char* nume, int is_const, char* tip, char* valoare, struct Matrix
 	sy_table.entries[sy_table.nr_entries++] = newentry;
 }
 
+void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) {
+	struct functie* newentry;
+    newentry = malloc(sizeof(struct functie));
+    newentry->return_type = ret;
+    printf("%p\n", newentry->return_type);
+    newentry->name = strdup(nume);
+    printf("Entered new FN entry\n");
+	//newentry.return_type = ret;
+    //memcpy(newentry.return_type, ret, sizeof(struct Tip_Date)); cu malloc!!
+
+    // int size = 1;
+    // for(int i=0;i<newentry.tip->size->nr_dimensiuni;i++)
+    // {
+    //     size=size*newentry.tip->size->dimensiune[i];
+    // }
+
+    newentry->nr_param = param->nr_dimensiuni;
+    
+	for (int i = 0; i < param->nr_dimensiuni; i++) {
+        newentry->param[i] = param->dimensiune[i];
+    }
+    
+	fn_table.entries[fn_table.nr_entries++] = newentry;
+}
+
 void export_sy_table() {
     int fd = open("symbol_table.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);
     if (fd < 0) {
@@ -78,9 +103,9 @@ void export_sy_table() {
 
     for(int i = 0; i < sy_table.nr_entries; ++i) {
         int size = 1;
-        for(int j=0;j<sy_table.entries[i].size->nr_paranteze;j++)
+        for(int j=0;j<sy_table.entries[i].tip->size->nr_dimensiuni;j++)
         {
-            size=size*sy_table.entries[i].size->dimensiune[j];
+            size=size*(*((int*)(sy_table.entries[i].tip->size->dimensiune[j])));
         }
         sprintf(entry, "Nume: %s, Tip:%s, Const?:%d, size:%d\n", 
                                         sy_table.entries[i].nume, 
@@ -95,7 +120,7 @@ void export_sy_table() {
     close(fd);
 }
 
-void export_sy_table() 
+void export_fn_table() 
 {
     int fd = open("symbol_table_functions.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);
     if (fd < 0) {
@@ -103,5 +128,45 @@ void export_sy_table()
         return 1;
     }
     
-    char entry[300];
+    char entry[4000];
+    char temp[300];
+
+    for(int i = 0; i < fn_table.nr_entries; ++i) {
+        bzero(entry, 4000);
+        sprintf(entry, "{\nName: %s,\nRet_type: ", fn_table.entries[i]->name);
+        
+        int size = 1;
+        for(int j=0;j<fn_table.entries[i]->return_type->size->nr_dimensiuni;j++)
+        {
+            size=size * (*((int*)(fn_table.entries[i]->return_type->size->dimensiune[j])));
+        }
+        
+        sprintf(temp,"{Tip:%s, Const?:%d, size:%d}",
+                                        fn_table.entries[i]->return_type->tip, 
+                                        fn_table.entries[i]->return_type->is_const,
+                                        size);
+        strcat(entry,temp);
+        strcat(entry,",\nParams : [\n");
+        for(int k = 0 ; k < fn_table.entries[i]->nr_param; k++ ) {
+            int size = 1;
+            for(int j=0;j<fn_table.entries[i]->param[k]->tip->size->nr_dimensiuni;j++)
+            {
+                size=size*(*((int*)(fn_table.entries[i]->param[k]->tip->size->dimensiune[j])));
+            }
+            
+
+            sprintf(temp, "\t{Nume: %s, Tip:%s, Const?:%d, size:%d}\n",
+                                        fn_table.entries[i]->param[k]->nume, 
+                                        fn_table.entries[i]->param[k]->tip->tip, 
+                                        fn_table.entries[i]->param[k]->tip->is_const,
+                                        size);
+            strcat(entry,temp);
+
+        }
+        strcat(entry,"\t]\n}\n");
+        if ( 0 > write(fd, entry, strlen(entry))) {
+            perror("write");
+        }
+    }
+    close(fd);
 }
