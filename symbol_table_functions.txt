@@ -2,8 +2,6 @@
 Name: f,
 Ret_type: {Tip:bool, Const?:0, size:1},
 Params : [
-	{Nume: x, Tip:int, Const?:0, size:28800}
-	{Nume: b, Tip:bool, Const?:0, size:1}
 	{Nume: b, Tip:string, Const?:0, size:600}
 	]
 }

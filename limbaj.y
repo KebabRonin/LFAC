@@ -24,7 +24,7 @@ struct Tip_Date* tipD;
 struct list* ls;
 struct simbol* symbol;
 }
-%type <ls>lista_array <ls>lista_param
+%type <ls>lista_array lista_param lista_param_non_void
 %type <tipD>tip_date
 %type <symbol>param
 %token <strval>ID <strval>TIP ASSIGN <intval>NR CMP_OP CLASS <strval>STRING <floatval>FLOAT <charval>CHAR <intval>BOOL
@@ -125,8 +125,11 @@ lista_id : ID lista_array {
 		 ;
 
 lista_param : /*epsilon*/ {$$ = malloc(sizeof(struct list)); $$->nr_dimensiuni = 0;}
-			| param {$$ = malloc(sizeof(struct list)); $$->dimensiune[0] = $1; $$->nr_dimensiuni = 1;}
-            | lista_param ','  param {$$ = $1; $$->dimensiune[$$->nr_dimensiuni++] = $3;}
+			| lista_param_non_void
+			;
+
+lista_param_non_void : param {$$ = malloc(sizeof(struct list)); $$->dimensiune[0] = $1; $$->nr_dimensiuni = 1;}
+            | lista_param_non_void ','  param {$$ = $1; $$->dimensiune[$$->nr_dimensiuni++] = $3;}
             ;
 
 param : tip_date ID lista_array {

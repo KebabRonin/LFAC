@@ -5,7 +5,7 @@ float a,b,c[3][100][3][4][6];
 struct Mystruct b;
 _fnc
 
-bool f(int  x[2][30][20][4][6], bool b, string b[200][3]);
+bool f(, string b[200][3]);
 
 _userdef
 
