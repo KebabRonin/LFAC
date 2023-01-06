@@ -9,7 +9,7 @@ int yydebug=1;
 
 struct Tip_Date* now_declaring = NULL;
 
-void new_entry(char* nume, int is_const, char* tip, char* valoare, int size);
+void new_entry(char* nume, int is_const, char* tip, char* valoare, struct MatrixInfo* size);
 void export_sy_table();
 
 %}
@@ -19,8 +19,9 @@ char* strval;
 char charval;
 float floatval;
 struct Tip_Date* tipD;
+struct MatrixInfo* matrix;
 }
-%type <intval>lista_array
+%type <matrix>lista_array
 %token <strval>ID <strval>TIP ASSIGN <intval>NR CMP_OP CLASS <strval>STRING <floatval>FLOAT <charval>CHAR <intval>BOOL
 %token BGIN END CONST IF WHILE DO ELSE FOR BOOLAND BOOLOR TYPEOF EVAL GLOBDEF FNCDEF STRUCTDEF
 %start progr
@@ -75,24 +76,31 @@ typeof : TYPEOF '(' ID ')'
 	   | TYPEOF '(' FLOAT ')'
 	   ;
 
-lista_array : /*epsilon*/ {$$ = 1;}
-			| '[' NR ']' lista_array {$$ = $2 * $4;}
+lista_array : /*epsilon*/ {$$ = malloc(sizeof(struct MatrixInfo)); $$->nr_paranteze=0;}
+			| '[' NR ']' lista_array { printf("%d\n",$2);
+										$$ = $4; 
+										if($$->nr_paranteze == 5)
+										{
+											yyerror("ERROR:Array has too many dimensions.");
+     										exit(0);
+										}
+										$$->dimensiune[$$->nr_paranteze]=$2; $$->nr_paranteze++;}
 			;
 
 lista_id : ID lista_array {
-				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2);
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2->nr_paranteze);
 				new_entry($1, now_declaring->is_const, now_declaring->tip, 0, $2);
 			}
 		 | ID lista_array ASSIGN expresie {
-				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2);
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2->nr_paranteze);
 				new_entry($1, now_declaring->is_const, now_declaring->tip, /*$4*/0, $2);
 			}
 		 | lista_id ',' ID lista_array {
-			printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4);
+			printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4->nr_paranteze);
 			new_entry($3, now_declaring->is_const, now_declaring->tip, 0, $4);
 			}
 		 | lista_id ',' ID lista_array ASSIGN expresie {
-				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4);
+				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4->nr_paranteze);
 				new_entry($3, now_declaring->is_const, now_declaring->tip, /*$6*/0, $4);
 			}
 		 ;

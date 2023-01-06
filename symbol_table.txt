@@ -1,5 +1,5 @@
 Nume: b, Tip:int, Const?:0, size:1
 Nume: a, Tip:float, Const?:0, size:1
 Nume: b, Tip:float, Const?:0, size:1
-Nume: c, Tip:float, Const?:0, size:300
+Nume: c, Tip:float, Const?:0, size:21600
 Nume: b, Tip:Mystruct, Const?:0, size:1

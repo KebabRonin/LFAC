@@ -114,8 +114,9 @@ char* strval;
 char charval;
 float floatval;
 struct Tip_Date* tipD;
+struct MatrixInfo* matrix;
 
-#line 119 "y.tab.h"
+#line 120 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
