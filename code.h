@@ -23,6 +23,6 @@ struct functie {
 	int nr_param;
 };
 struct tabela_functii {
-	struct functie* entries[300];
+	struct functie entries[300];
 	unsigned int nr_entries;
 };

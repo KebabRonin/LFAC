@@ -68,11 +68,10 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 }
 
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) {
-	struct functie* newentry;
-    newentry = malloc(sizeof(struct functie));
-    newentry->return_type = ret;
-    printf("%p\n", newentry->return_type);
-    newentry->name = strdup(nume);
+	struct functie newentry;
+    newentry.return_type = ret;
+    printf("%p\n", newentry.return_type);
+    newentry.name = strdup(nume);
     printf("Entered new FN entry\n");
 	//newentry.return_type = ret;
     //memcpy(newentry.return_type, ret, sizeof(struct Tip_Date)); cu malloc!!
@@ -83,10 +82,10 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) {
     //     size=size*newentry.tip->size->dimensiune[i];
     // }
 
-    newentry->nr_param = param->nr_dimensiuni;
+    newentry.nr_param = param->nr_dimensiuni;
     
 	for (int i = 0; i < param->nr_dimensiuni; i++) {
-        newentry->param[i] = param->dimensiune[i];
+        newentry.param[i] = param->dimensiune[i];
     }
     
 	fn_table.entries[fn_table.nr_entries++] = newentry;
@@ -133,32 +132,32 @@ void export_fn_table()
 
     for(int i = 0; i < fn_table.nr_entries; ++i) {
         bzero(entry, 4000);
-        sprintf(entry, "{\nName: %s,\nRet_type: ", fn_table.entries[i]->name);
+        sprintf(entry, "{\nName: %s,\nRet_type: ", fn_table.entries[i].name);
         
         int size = 1;
-        for(int j=0;j<fn_table.entries[i]->return_type->size->nr_dimensiuni;j++)
+        for(int j=0;j<fn_table.entries[i].return_type->size->nr_dimensiuni;j++)
         {
-            size=size * (*((int*)(fn_table.entries[i]->return_type->size->dimensiune[j])));
+            size=size * (*((int*)(fn_table.entries[i].return_type->size->dimensiune[j])));
         }
         
         sprintf(temp,"{Tip:%s, Const?:%d, size:%d}",
-                                        fn_table.entries[i]->return_type->tip, 
-                                        fn_table.entries[i]->return_type->is_const,
+                                        fn_table.entries[i].return_type->tip, 
+                                        fn_table.entries[i].return_type->is_const,
                                         size);
         strcat(entry,temp);
         strcat(entry,",\nParams : [\n");
-        for(int k = 0 ; k < fn_table.entries[i]->nr_param; k++ ) {
+        for(int k = 0 ; k < fn_table.entries[i].nr_param; k++ ) {
             int size = 1;
-            for(int j=0;j<fn_table.entries[i]->param[k]->tip->size->nr_dimensiuni;j++)
+            for(int j=0;j<fn_table.entries[i].param[k]->tip->size->nr_dimensiuni;j++)
             {
-                size=size*(*((int*)(fn_table.entries[i]->param[k]->tip->size->dimensiune[j])));
+                size=size*(*((int*)(fn_table.entries[i].param[k]->tip->size->dimensiune[j])));
             }
             
 
             sprintf(temp, "\t{Nume: %s, Tip:%s, Const?:%d, size:%d}\n",
-                                        fn_table.entries[i]->param[k]->nume, 
-                                        fn_table.entries[i]->param[k]->tip->tip, 
-                                        fn_table.entries[i]->param[k]->tip->is_const,
+                                        fn_table.entries[i].param[k]->nume, 
+                                        fn_table.entries[i].param[k]->tip->tip, 
+                                        fn_table.entries[i].param[k]->tip->is_const,
                                         size);
             strcat(entry,temp);
 
