@@ -77,8 +77,7 @@ extern int yylineno;
 int yydebug=1; 
 
 struct Tip_Date* now_declaring = NULL;
-char* function[50];
-char* parameters[100][100];
+char parameters[100][100];
 int nr_parametri = 0;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
@@ -87,7 +86,7 @@ void export_sy_table();
 void export_fn_table();
 
 
-#line 91 "y.tab.c"
+#line 90 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -193,7 +192,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 21 "limbaj.y"
+#line 20 "limbaj.y"
 
 int intval;
 char* strval;
@@ -203,7 +202,7 @@ struct Tip_Date* tipD;
 struct list* ls;
 struct simbol* symbol;
 
-#line 207 "y.tab.c"
+#line 206 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -581,15 +580,15 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    43,    43,    46,    47,    50,    51,    51,    54,    55,
-      58,    59,    62,    67,    68,    71,    72,    75,    78,    81,
-      84,    87,    90,    91,    92,    93,    94,    95,    96,    99,
-     100,   112,   116,   120,   124,   130,   131,   134,   135,   138,
-     149,   152,   153,   157,   158,   159,   160,   192,   206,   207,
-     229,   244,   245,   248,   249,   250,   251,   254,   255,   258,
-     261,   264,   267,   270,   273,   274,   275,   276,   280,   281,
-     284,   307,   310,   311,   312,   313,   314,   315,   316,   317,
-     318,   319,   320,   331,   354
+       0,    42,    42,    45,    46,    49,    50,    50,    53,    54,
+      57,    58,    61,    66,    67,    70,    71,    74,    77,    80,
+      83,    86,    89,    90,    91,    92,    93,    94,    95,    98,
+      99,   111,   115,   119,   123,   129,   130,   133,   134,   137,
+     148,   151,   152,   156,   157,   158,   159,   191,   205,   206,
+     228,   251,   252,   255,   256,   257,   258,   261,   262,   265,
+     268,   271,   274,   277,   280,   281,   282,   283,   287,   300,
+     315,   336,   339,   340,   341,   342,   343,   344,   345,   346,
+     347,   348,   349,   360,   382
 };
 #endif
 
@@ -1503,91 +1502,91 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 43 "limbaj.y"
+#line 42 "limbaj.y"
                                                                    {printf("program corect sintactic\n");}
-#line 1509 "y.tab.c"
+#line 1508 "y.tab.c"
     break;
 
   case 4:
-#line 47 "limbaj.y"
+#line 46 "limbaj.y"
                                                                        {export_sy_table();}
-#line 1515 "y.tab.c"
+#line 1514 "y.tab.c"
     break;
 
   case 6:
-#line 51 "limbaj.y"
+#line 50 "limbaj.y"
                                                                         {now_declaring = (yyvsp[0].tipD);}
-#line 1521 "y.tab.c"
+#line 1520 "y.tab.c"
     break;
 
   case 9:
-#line 55 "limbaj.y"
+#line 54 "limbaj.y"
                                                           {export_fn_table();}
-#line 1527 "y.tab.c"
+#line 1526 "y.tab.c"
     break;
 
   case 11:
-#line 59 "limbaj.y"
+#line 58 "limbaj.y"
                                                                                        {
 																				new_entry_fn((yyvsp[-4].strval), (yyvsp[-5].tipD), (yyvsp[-2].ls));
 																			}
-#line 1535 "y.tab.c"
+#line 1534 "y.tab.c"
     break;
 
   case 12:
-#line 62 "limbaj.y"
+#line 61 "limbaj.y"
                                                                                                 {
 																						new_entry_fn((yyvsp[-6].strval), (yyvsp[-7].tipD), (yyvsp[-4].ls));
 																					}
-#line 1543 "y.tab.c"
+#line 1542 "y.tab.c"
     break;
 
   case 17:
-#line 75 "limbaj.y"
+#line 74 "limbaj.y"
                {(yyval.tipD) = malloc(sizeof(struct Tip_Date)); (yyval.tipD)->tip = strdup((yyvsp[0].strval)); (yyval.tipD)->is_const = 0; 
 				(yyval.tipD)->size = malloc(sizeof(struct list)); (yyval.tipD)->size->nr_dimensiuni=0;
 				}
-#line 1551 "y.tab.c"
+#line 1550 "y.tab.c"
     break;
 
   case 18:
-#line 78 "limbaj.y"
+#line 77 "limbaj.y"
                              {(yyval.tipD) = malloc(sizeof(struct Tip_Date)); (yyval.tipD)->tip = strdup((yyvsp[0].strval)); (yyval.tipD)->is_const = 1;
 				(yyval.tipD)->size = malloc(sizeof(struct list)); (yyval.tipD)->size->nr_dimensiuni=0;
 				}
-#line 1559 "y.tab.c"
+#line 1558 "y.tab.c"
     break;
 
   case 19:
-#line 81 "limbaj.y"
+#line 80 "limbaj.y"
                             {(yyval.tipD) = malloc(sizeof(struct Tip_Date)); (yyval.tipD)->tip = strdup((yyvsp[0].strval)); (yyval.tipD)->is_const = 0;
 				(yyval.tipD)->size = malloc(sizeof(struct list)); (yyval.tipD)->size->nr_dimensiuni=0;
 				}
-#line 1567 "y.tab.c"
+#line 1566 "y.tab.c"
     break;
 
   case 20:
-#line 84 "limbaj.y"
+#line 83 "limbaj.y"
                                   {(yyval.tipD) = malloc(sizeof(struct Tip_Date)); (yyval.tipD)->tip = strdup((yyvsp[0].strval)); (yyval.tipD)->is_const = 1;
 				(yyval.tipD)->size = malloc(sizeof(struct list)); (yyval.tipD)->size->nr_dimensiuni=0;
 				}
-#line 1575 "y.tab.c"
+#line 1574 "y.tab.c"
     break;
 
   case 21:
-#line 87 "limbaj.y"
+#line 86 "limbaj.y"
                           {(yyval.tipD) = NULL;}
-#line 1581 "y.tab.c"
+#line 1580 "y.tab.c"
     break;
 
   case 29:
-#line 99 "limbaj.y"
+#line 98 "limbaj.y"
                           {(yyval.ls) = malloc(sizeof(struct list)); (yyval.ls)->nr_dimensiuni=0;}
-#line 1587 "y.tab.c"
+#line 1586 "y.tab.c"
     break;
 
   case 30:
-#line 100 "limbaj.y"
+#line 99 "limbaj.y"
                                                  { 
 										(yyval.ls) = (yyvsp[0].ls); 
 										if((yyval.ls)->nr_dimensiuni == 5)
@@ -1598,65 +1597,65 @@ yyreduce:
 										(yyval.ls)->dimensiune[(yyval.ls)->nr_dimensiuni]    = malloc(sizeof(int)); 
 										*((int*)((yyval.ls)->dimensiune[(yyval.ls)->nr_dimensiuni]))   = (yyvsp[-2].intval); 
 										(yyval.ls)->nr_dimensiuni++;}
-#line 1602 "y.tab.c"
+#line 1601 "y.tab.c"
     break;
 
   case 31:
-#line 112 "limbaj.y"
+#line 111 "limbaj.y"
                           {
 				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-1].strval), (yyvsp[0].ls)->nr_dimensiuni);
 				new_entry_sy((yyvsp[-1].strval), now_declaring->is_const, now_declaring->tip, 0, (yyvsp[0].ls));
 			}
-#line 1611 "y.tab.c"
+#line 1610 "y.tab.c"
     break;
 
   case 32:
-#line 116 "limbaj.y"
+#line 115 "limbaj.y"
                                                   {
 				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-3].strval), (yyvsp[-2].ls)->nr_dimensiuni);
 				new_entry_sy((yyvsp[-3].strval), now_declaring->is_const, now_declaring->tip, /*$4*/0, (yyvsp[-2].ls));
 			}
-#line 1620 "y.tab.c"
+#line 1619 "y.tab.c"
     break;
 
   case 33:
-#line 120 "limbaj.y"
+#line 119 "limbaj.y"
                                                {
 			printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-1].strval), (yyvsp[0].ls)->nr_dimensiuni);
 			new_entry_sy((yyvsp[-1].strval), now_declaring->is_const, now_declaring->tip, 0, (yyvsp[0].ls));
 			}
-#line 1629 "y.tab.c"
+#line 1628 "y.tab.c"
     break;
 
   case 34:
-#line 124 "limbaj.y"
+#line 123 "limbaj.y"
                                                                {
 				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, (yyvsp[-3].strval), (yyvsp[-2].ls)->nr_dimensiuni);
 				new_entry_sy((yyvsp[-3].strval), now_declaring->is_const, now_declaring->tip, /*$6*/0, (yyvsp[-2].ls));
 			}
-#line 1638 "y.tab.c"
+#line 1637 "y.tab.c"
     break;
 
   case 35:
-#line 130 "limbaj.y"
+#line 129 "limbaj.y"
                           {(yyval.ls) = malloc(sizeof(struct list)); (yyval.ls)->nr_dimensiuni = 0;}
-#line 1644 "y.tab.c"
+#line 1643 "y.tab.c"
     break;
 
   case 37:
-#line 134 "limbaj.y"
+#line 133 "limbaj.y"
                              {(yyval.ls) = malloc(sizeof(struct list)); (yyval.ls)->dimensiune[0] = (yyvsp[0].symbol); (yyval.ls)->nr_dimensiuni = 1;}
-#line 1650 "y.tab.c"
+#line 1649 "y.tab.c"
     break;
 
   case 38:
-#line 135 "limbaj.y"
+#line 134 "limbaj.y"
                                               {(yyval.ls) = (yyvsp[-2].ls); (yyval.ls)->dimensiune[(yyval.ls)->nr_dimensiuni++] = (yyvsp[0].symbol);}
-#line 1656 "y.tab.c"
+#line 1655 "y.tab.c"
     break;
 
   case 39:
-#line 138 "limbaj.y"
+#line 137 "limbaj.y"
                                 {
 									(yyval.symbol) = malloc(sizeof(struct simbol)); 
 									free((yyvsp[-2].tipD)->size);
@@ -1665,11 +1664,11 @@ yyreduce:
 									(yyval.symbol)->nume = strdup((yyvsp[-1].strval)); 
 									(yyval.symbol)->valoare = 0;
 								}
-#line 1669 "y.tab.c"
+#line 1668 "y.tab.c"
     break;
 
   case 47:
-#line 192 "limbaj.y"
+#line 191 "limbaj.y"
                                 {
 									if(exists_variable((yyvsp[-2].strval))==1)
 									{
@@ -1682,11 +1681,11 @@ yyreduce:
 										exit(0);
 									}
 								}
-#line 1686 "y.tab.c"
+#line 1685 "y.tab.c"
     break;
 
   case 49:
-#line 207 "limbaj.y"
+#line 206 "limbaj.y"
                                         {
 										if(exists_function((yyvsp[-3].strval))==1)
 										{
@@ -1709,19 +1708,27 @@ yyreduce:
 											exit(0);
 										}
 									}
-#line 1713 "y.tab.c"
+#line 1712 "y.tab.c"
     break;
 
   case 50:
-#line 229 "limbaj.y"
+#line 228 "limbaj.y"
                                 {
 							if(exists_function((yyvsp[-2].strval))==1)
 							{
 								printf("%s function exists.\n",(yyvsp[-2].strval));
+								verify_parameters((yyvsp[-2].strval),parameters,nr_parametri);
+
 								if(verify_no_parameters((yyvsp[-2].strval))==1)
+								{
+									yyerror("Function is not declared with any parameters.");
+									exit(0);
+								}
+								else
 								{
 									printf("%s function is called correctly.\n",(yyvsp[-2].strval));
 								}
+								nr_parametri = 0;
 							}
 							else
 							{
@@ -1729,35 +1736,57 @@ yyreduce:
 								exit(0);
 							}
 						}
-#line 1733 "y.tab.c"
+#line 1740 "y.tab.c"
     break;
 
   case 63:
-#line 270 "limbaj.y"
+#line 277 "limbaj.y"
                                                {printf("if\n");}
-#line 1739 "y.tab.c"
+#line 1746 "y.tab.c"
     break;
 
   case 68:
-#line 280 "limbaj.y"
-                        {}
-#line 1745 "y.tab.c"
+#line 287 "limbaj.y"
+                        {
+							// if(exists_variable($1)==1)
+							// 	{
+							// 		printf("%s variable exists.\n",$1);
+							// 		strcpy(parameters[nr_parametri],$1);
+							// 		nr_parametri++;
+							// 	}
+							// 	else
+							// 	{
+							// 		yyerror("Variable is not declared.");
+							// 		exit(0);
+							// 	}
+						}
+#line 1764 "y.tab.c"
     break;
 
   case 69:
-#line 281 "limbaj.y"
-                                         {}
-#line 1751 "y.tab.c"
+#line 300 "limbaj.y"
+                                         {
+											// if(exists_variable($1)==1)
+											// 	{
+											// 		printf("%s variable exists.\n",$3);
+											// 		strcpy(parameters[nr_parametri],$3);
+											// 		nr_parametri++;
+											// 	}
+											// 	else
+											// 	{
+											// 		yyerror("Variable is not declared.");
+											// 		exit(0);
+											// 	}
+										}
+#line 1782 "y.tab.c"
     break;
 
   case 70:
-#line 284 "limbaj.y"
+#line 315 "limbaj.y"
                 {
 					if(exists_variable((yyvsp[0].strval))==1)
 					{
 						printf("%s variable exists.\n",(yyvsp[0].strval));
-						// char type[100] = get_type($1);
-						// printf("%s\n",type);
 						strcpy(parameters[nr_parametri],(yyvsp[0].strval));
 						nr_parametri++;
 					}
@@ -1768,71 +1797,71 @@ yyreduce:
 					}
 							
 				}
-#line 1772 "y.tab.c"
+#line 1801 "y.tab.c"
     break;
 
   case 72:
-#line 310 "limbaj.y"
+#line 339 "limbaj.y"
                                  {}
-#line 1778 "y.tab.c"
+#line 1807 "y.tab.c"
     break;
 
   case 73:
-#line 311 "limbaj.y"
+#line 340 "limbaj.y"
                          {}
-#line 1784 "y.tab.c"
+#line 1813 "y.tab.c"
     break;
 
   case 74:
-#line 312 "limbaj.y"
+#line 341 "limbaj.y"
                          {}
-#line 1790 "y.tab.c"
+#line 1819 "y.tab.c"
     break;
 
   case 75:
-#line 313 "limbaj.y"
+#line 342 "limbaj.y"
                          {}
-#line 1796 "y.tab.c"
+#line 1825 "y.tab.c"
     break;
 
   case 76:
-#line 314 "limbaj.y"
+#line 343 "limbaj.y"
                     {}
-#line 1802 "y.tab.c"
+#line 1831 "y.tab.c"
     break;
 
   case 77:
-#line 315 "limbaj.y"
+#line 344 "limbaj.y"
       {printf("Nr : |%d|\n",(yyvsp[0].intval));}
-#line 1808 "y.tab.c"
+#line 1837 "y.tab.c"
     break;
 
   case 78:
-#line 316 "limbaj.y"
+#line 345 "limbaj.y"
           {printf("Str : |%s|\n",(yyvsp[0].strval));}
-#line 1814 "y.tab.c"
+#line 1843 "y.tab.c"
     break;
 
   case 79:
-#line 317 "limbaj.y"
+#line 346 "limbaj.y"
          {printf("Float : |%f|\n",(yyvsp[0].floatval));}
-#line 1820 "y.tab.c"
+#line 1849 "y.tab.c"
     break;
 
   case 80:
-#line 318 "limbaj.y"
+#line 347 "limbaj.y"
         {printf("Char : |%c|\n",(yyvsp[0].charval));}
-#line 1826 "y.tab.c"
+#line 1855 "y.tab.c"
     break;
 
   case 81:
-#line 319 "limbaj.y"
+#line 348 "limbaj.y"
         {printf("Bool : |%d|\n",(yyvsp[0].intval));}
-#line 1832 "y.tab.c"
+#line 1861 "y.tab.c"
     break;
 
   case 82:
-#line 320 "limbaj.y"
+#line 349 "limbaj.y"
         {
 			if(exists_variable((yyvsp[0].strval))==1)
 			{
@@ -1844,16 +1873,15 @@ yyreduce:
 				exit(0);
 			}
  		}
-#line 1848 "y.tab.c"
+#line 1877 "y.tab.c"
     break;
 
   case 83:
-#line 331 "limbaj.y"
+#line 360 "limbaj.y"
                                 {
 								if(exists_function((yyvsp[-3].strval))==1)
 								{
 									printf("%s function exists.\n",(yyvsp[-3].strval));
-									strcpy(function,(yyvsp[-3].strval));
 									verify_parameters((yyvsp[-3].strval),parameters,nr_parametri);
 									if(verify_no_parameters((yyvsp[-3].strval))==1)
 									{
@@ -1872,19 +1900,26 @@ yyreduce:
 									exit(0);
 								}
 							}
-#line 1876 "y.tab.c"
+#line 1904 "y.tab.c"
     break;
 
   case 84:
-#line 354 "limbaj.y"
+#line 382 "limbaj.y"
                 {
 				if(exists_function((yyvsp[-2].strval))==1)
 				{
 					printf("%s function exists.\n",(yyvsp[-2].strval));
+					verify_parameters((yyvsp[-2].strval),parameters,nr_parametri);
 					if(verify_no_parameters((yyvsp[-2].strval))==1)
+					{
+						yyerror("Function is not declared with any parameters.");
+						exit(0);
+					}
+					else
 					{
 						printf("%s function is called correctly.\n",(yyvsp[-2].strval));
 					}
+					nr_parametri = 0;
 				}
 				else
 				{
@@ -1892,11 +1927,11 @@ yyreduce:
 					exit(0);
 				}
 			}
-#line 1896 "y.tab.c"
+#line 1931 "y.tab.c"
     break;
 
 
-#line 1900 "y.tab.c"
+#line 1935 "y.tab.c"
 
       default: break;
     }
@@ -2128,7 +2163,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 370 "limbaj.y"
+#line 405 "limbaj.y"
 
 void yyerror(char * s)
 {

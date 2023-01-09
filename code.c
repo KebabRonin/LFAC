@@ -149,20 +149,6 @@ int exists_function(char *s)
     return 0;
 }
 
-char get_type(char* s)
-{
-    return strdup(s);
-    // int i=0;
-    // for(i=0;i<sy_table.nr_entries;i++)
-    // {
-    //     if(strcmp(s,sy_table.entries[i].nume)==0)
-    //     {
-    //         printf("%s\n",sy_table.entries[i].tip->tip);
-    //         //char* type = sy_table.entries[i].tip->tip;
-    //         return "mama";
-    //     }
-    // }
-}
 
 int verify_no_parameters(char* s)
 {
@@ -172,17 +158,22 @@ int verify_no_parameters(char* s)
         if(strcmp(s,fn_table.entries[i].name)==0)
             break;
     }
-    printf("nr_param = %d\n",fn_table.entries[i].nr_param);
     if(fn_table.entries[i].nr_param == 0)
     {
         return 1;
     }
     return 0;
 }
-void verify_parameters(char* s,char* parameters[10][10],int nr_parametri)
+void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
 {
+    printf("nr parametri = %d, nr parametri ceruti = %d\n",nr_parametri,fn_table.entries->nr_param);
+    if(nr_parametri != fn_table.entries->nr_param)
+    {
+        yyerror("Argument type doesn't match.");
+	    exit(0);
+    }
     int i=0;
-    for(i=0;i<fn_table.nr_entries;i++)
+    for(i=0;i<nr_parametri;i++)
     {
         if(strcmp(s,fn_table.entries[i].name)==0)
             break;
@@ -192,17 +183,18 @@ void verify_parameters(char* s,char* parameters[10][10],int nr_parametri)
     int j=0;
     for(j=0;j<nr_parametri;j++)
     {
+        printf("Verificam parametrul %d : %s\n", j, parameters[j]);
         for(i=0;i<sy_table.nr_entries;i++)
         {
-            if(strcmp(parameters[i],sy_table.entries[i].nume)==0)
+            if(strcmp(parameters[j],sy_table.entries[i].nume)==0)
             {
-                strcpy(parameters[i], sy_table.entries[i].tip->tip);
+                strcpy(parameters[j], sy_table.entries[i].tip->tip);
                 break;
             }
         }
         if(strcmp(parameters[j],fn_table.entries[k].param[j]->tip->tip)!=0)
         {
-            printf("tipul parametrului = %s, tipul cerut = %s\n",parameters[j],fn_table.entries[i].param[j]->tip->tip);
+            printf("tipul parametrului = %s, tipul cerut = %s\n",parameters[j],fn_table.entries[k].param[j]->tip->tip);
             yyerror("Argument type doesn't match.");
 			exit(0);
         }

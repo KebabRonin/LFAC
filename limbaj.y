@@ -8,8 +8,7 @@ extern int yylineno;
 int yydebug=1; 
 
 struct Tip_Date* now_declaring = NULL;
-char* function[50];
-char* parameters[100][100];
+char parameters[100][100];
 int nr_parametri = 0;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
@@ -230,10 +229,18 @@ statement : assignment
 							if(exists_function($1)==1)
 							{
 								printf("%s function exists.\n",$1);
+								verify_parameters($1,parameters,nr_parametri);
+
 								if(verify_no_parameters($1)==1)
+								{
+									yyerror("Function is not declared with any parameters.");
+									exit(0);
+								}
+								else
 								{
 									printf("%s function is called correctly.\n",$1);
 								}
+								nr_parametri = 0;
 							}
 							else
 							{
@@ -277,16 +284,38 @@ boolean_expr : '(' boolean_expr ')'
 			 ;
 
 
-lista_apel : param_apel {}
-            | lista_apel ','  param_apel {}
+lista_apel : param_apel {
+							// if(exists_variable($1)==1)
+							// 	{
+							// 		printf("%s variable exists.\n",$1);
+							// 		strcpy(parameters[nr_parametri],$1);
+							// 		nr_parametri++;
+							// 	}
+							// 	else
+							// 	{
+							// 		yyerror("Variable is not declared.");
+							// 		exit(0);
+							// 	}
+						}
+            | lista_apel ','  param_apel {
+											// if(exists_variable($1)==1)
+											// 	{
+											// 		printf("%s variable exists.\n",$3);
+											// 		strcpy(parameters[nr_parametri],$3);
+											// 		nr_parametri++;
+											// 	}
+											// 	else
+											// 	{
+											// 		yyerror("Variable is not declared.");
+											// 		exit(0);
+											// 	}
+										}
             ;
 
 param_apel : ID {
 					if(exists_variable($1)==1)
 					{
 						printf("%s variable exists.\n",$1);
-						// char type[100] = get_type($1);
-						// printf("%s\n",type);
 						strcpy(parameters[nr_parametri],$1);
 						nr_parametri++;
 					}
@@ -332,7 +361,6 @@ expresie: expresie '+' expresie  {}
 								if(exists_function($1)==1)
 								{
 									printf("%s function exists.\n",$1);
-									strcpy(function,$1);
 									verify_parameters($1,parameters,nr_parametri);
 									if(verify_no_parameters($1)==1)
 									{
@@ -355,10 +383,17 @@ expresie: expresie '+' expresie  {}
 				if(exists_function($1)==1)
 				{
 					printf("%s function exists.\n",$1);
+					verify_parameters($1,parameters,nr_parametri);
 					if(verify_no_parameters($1)==1)
+					{
+						yyerror("Function is not declared with any parameters.");
+						exit(0);
+					}
+					else
 					{
 						printf("%s function is called correctly.\n",$1);
 					}
+					nr_parametri = 0;
 				}
 				else
 				{

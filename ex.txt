@@ -1,11 +1,12 @@
 _global
 
 string b;
+int j;
 float a,c[3][100][3][4][6];
 int m[3];
 _fnc
 
-bool f(string b[200][3]);
+bool f(string b[200][3],int j,float a);
 int g();
 
 _userdef
@@ -17,8 +18,7 @@ begin_progr
 
 	Eval(a+3*b);
 	m = 3;
-	f(b);
-	f();
+	m=f(b,j,a);
 	if ( ( c != 2 or a == b and a > 2 ) ) {
 		a = true;
 	}
