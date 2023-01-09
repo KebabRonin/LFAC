@@ -149,18 +149,19 @@ int exists_function(char *s)
     return 0;
 }
 
-char* get_type(char* s)
+char get_type(char* s)
 {
-    int i=0;
-    for(i=0;i<sy_table.nr_entries;i++)
-    {
-        if(strcmp(s,sy_table.entries[i].nume)==0)
-        {
-            printf("%s\n",sy_table.entries[i].tip->tip);
-            return sy_table.entries[i].tip->tip;
-        }
-    }
-    return "NULL";
+    return strdup(s);
+    // int i=0;
+    // for(i=0;i<sy_table.nr_entries;i++)
+    // {
+    //     if(strcmp(s,sy_table.entries[i].nume)==0)
+    //     {
+    //         printf("%s\n",sy_table.entries[i].tip->tip);
+    //         //char* type = sy_table.entries[i].tip->tip;
+    //         return "mama";
+    //     }
+    // }
 }
 
 int verify_no_parameters(char* s)
@@ -186,13 +187,22 @@ void verify_parameters(char* s,char* parameters[10][10],int nr_parametri)
         if(strcmp(s,fn_table.entries[i].name)==0)
             break;
     }
-    printf("nr_param = %d\n",fn_table.entries[i].nr_param);
+    int k=i;
     
     int j=0;
     for(j=0;j<nr_parametri;j++)
     {
-        if(strcmp(parameters[j],fn_table.entries[i].param[j]->tip->tip)!=0)
+        for(i=0;i<sy_table.nr_entries;i++)
         {
+            if(strcmp(parameters[i],sy_table.entries[i].nume)==0)
+            {
+                strcpy(parameters[i], sy_table.entries[i].tip->tip);
+                break;
+            }
+        }
+        if(strcmp(parameters[j],fn_table.entries[k].param[j]->tip->tip)!=0)
+        {
+            printf("tipul parametrului = %s, tipul cerut = %s\n",parameters[j],fn_table.entries[i].param[j]->tip->tip);
             yyerror("Argument type doesn't match.");
 			exit(0);
         }

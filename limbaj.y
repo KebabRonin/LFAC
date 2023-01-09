@@ -282,8 +282,20 @@ lista_apel : param_apel {}
             ;
 
 param_apel : ID {
-					strcpy(parameters[nr_parametri],get_type($1));
-					nr_parametri++;				
+					if(exists_variable($1)==1)
+					{
+						printf("%s variable exists.\n",$1);
+						// char type[100] = get_type($1);
+						// printf("%s\n",type);
+						strcpy(parameters[nr_parametri],$1);
+						nr_parametri++;
+					}
+					else
+					{
+						yyerror("Variable is not declared.");
+						exit(0);
+					}
+							
 				}
       	   ;
 
@@ -312,7 +324,6 @@ expresie: expresie '+' expresie  {}
 			}
 			else
 			{
-				//printf("%s doesn't exists.\n",$1);
 				yyerror("Variable is not declared.");
 				exit(0);
 			}

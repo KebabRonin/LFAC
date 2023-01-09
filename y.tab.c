@@ -588,8 +588,8 @@ static const yytype_int16 yyrline[] =
      149,   152,   153,   157,   158,   159,   160,   192,   206,   207,
      229,   244,   245,   248,   249,   250,   251,   254,   255,   258,
      261,   264,   267,   270,   273,   274,   275,   276,   280,   281,
-     284,   298,   301,   302,   303,   304,   305,   306,   307,   308,
-     309,   310,   311,   323,   346
+     284,   307,   310,   311,   312,   313,   314,   315,   316,   317,
+     318,   319,   320,   331,   354
 };
 #endif
 
@@ -1753,77 +1753,86 @@ yyreduce:
   case 70:
 #line 284 "limbaj.y"
                 {
-					printf("%s\n",(yyvsp[0].strval));
-					//printf("%s\n",get_type($1));
-					//get_type($1);
-					strcpy(parameters[nr_parametri],get_type((yyvsp[0].strval)));
-					nr_parametri++;				
+					if(exists_variable((yyvsp[0].strval))==1)
+					{
+						printf("%s variable exists.\n",(yyvsp[0].strval));
+						// char type[100] = get_type($1);
+						// printf("%s\n",type);
+						strcpy(parameters[nr_parametri],(yyvsp[0].strval));
+						nr_parametri++;
+					}
+					else
+					{
+						yyerror("Variable is not declared.");
+						exit(0);
+					}
+							
 				}
-#line 1763 "y.tab.c"
+#line 1772 "y.tab.c"
     break;
 
   case 72:
-#line 301 "limbaj.y"
+#line 310 "limbaj.y"
                                  {}
-#line 1769 "y.tab.c"
+#line 1778 "y.tab.c"
     break;
 
   case 73:
-#line 302 "limbaj.y"
+#line 311 "limbaj.y"
                          {}
-#line 1775 "y.tab.c"
+#line 1784 "y.tab.c"
     break;
 
   case 74:
-#line 303 "limbaj.y"
+#line 312 "limbaj.y"
                          {}
-#line 1781 "y.tab.c"
+#line 1790 "y.tab.c"
     break;
 
   case 75:
-#line 304 "limbaj.y"
+#line 313 "limbaj.y"
                          {}
-#line 1787 "y.tab.c"
+#line 1796 "y.tab.c"
     break;
 
   case 76:
-#line 305 "limbaj.y"
+#line 314 "limbaj.y"
                     {}
-#line 1793 "y.tab.c"
+#line 1802 "y.tab.c"
     break;
 
   case 77:
-#line 306 "limbaj.y"
+#line 315 "limbaj.y"
       {printf("Nr : |%d|\n",(yyvsp[0].intval));}
-#line 1799 "y.tab.c"
+#line 1808 "y.tab.c"
     break;
 
   case 78:
-#line 307 "limbaj.y"
+#line 316 "limbaj.y"
           {printf("Str : |%s|\n",(yyvsp[0].strval));}
-#line 1805 "y.tab.c"
+#line 1814 "y.tab.c"
     break;
 
   case 79:
-#line 308 "limbaj.y"
+#line 317 "limbaj.y"
          {printf("Float : |%f|\n",(yyvsp[0].floatval));}
-#line 1811 "y.tab.c"
+#line 1820 "y.tab.c"
     break;
 
   case 80:
-#line 309 "limbaj.y"
+#line 318 "limbaj.y"
         {printf("Char : |%c|\n",(yyvsp[0].charval));}
-#line 1817 "y.tab.c"
+#line 1826 "y.tab.c"
     break;
 
   case 81:
-#line 310 "limbaj.y"
+#line 319 "limbaj.y"
         {printf("Bool : |%d|\n",(yyvsp[0].intval));}
-#line 1823 "y.tab.c"
+#line 1832 "y.tab.c"
     break;
 
   case 82:
-#line 311 "limbaj.y"
+#line 320 "limbaj.y"
         {
 			if(exists_variable((yyvsp[0].strval))==1)
 			{
@@ -1831,16 +1840,15 @@ yyreduce:
 			}
 			else
 			{
-				//printf("%s doesn't exists.\n",$1);
 				yyerror("Variable is not declared.");
 				exit(0);
 			}
  		}
-#line 1840 "y.tab.c"
+#line 1848 "y.tab.c"
     break;
 
   case 83:
-#line 323 "limbaj.y"
+#line 331 "limbaj.y"
                                 {
 								if(exists_function((yyvsp[-3].strval))==1)
 								{
@@ -1864,11 +1872,11 @@ yyreduce:
 									exit(0);
 								}
 							}
-#line 1868 "y.tab.c"
+#line 1876 "y.tab.c"
     break;
 
   case 84:
-#line 346 "limbaj.y"
+#line 354 "limbaj.y"
                 {
 				if(exists_function((yyvsp[-2].strval))==1)
 				{
@@ -1884,11 +1892,11 @@ yyreduce:
 					exit(0);
 				}
 			}
-#line 1888 "y.tab.c"
+#line 1896 "y.tab.c"
     break;
 
 
-#line 1892 "y.tab.c"
+#line 1900 "y.tab.c"
 
       default: break;
     }
@@ -2120,7 +2128,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 362 "limbaj.y"
+#line 370 "limbaj.y"
 
 void yyerror(char * s)
 {
