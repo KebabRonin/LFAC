@@ -5,3 +5,9 @@ Params : [
 	{Nume: b, Tip:string, Const?:0, size:600}
 	]
 }
+{
+Name: g,
+Ret_type: {Tip:int, Const?:0, size:1},
+Params : [
+	]
+}

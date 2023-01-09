@@ -8,6 +8,9 @@ extern int yylineno;
 int yydebug=1; 
 
 struct Tip_Date* now_declaring = NULL;
+char* function[50];
+char* parameters[100][100];
+int nr_parametri = 0;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param);
@@ -54,11 +57,11 @@ declaratii_fnc : /*epsilon*/
 
 declaratii_fnc_atomic : /*epsilon*/
 			   | declaratii_fnc_atomic tip_date ID '(' lista_param ')' ';' {
-					new_entry_fn($3, $2, $5);
-			   }
+																				new_entry_fn($3, $2, $5);
+																			}
 			   | declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}' {
-					new_entry_fn($3, $2, $5);
-			   }
+																						new_entry_fn($3, $2, $5);
+																					}
 			   ;
 
 declaratii_structuri : /*epsilon*/
@@ -133,13 +136,13 @@ lista_param_non_void : param {$$ = malloc(sizeof(struct list)); $$->dimensiune[0
             ;
 
 param : tip_date ID lista_array {
-	$$ = malloc(sizeof(struct simbol)); 
-	free($1->size);
-	$1->size = $3;
-	$$->tip = $1;
-	$$->nume = strdup($2); 
-	$$->valoare = 0;
-	}
+									$$ = malloc(sizeof(struct simbol)); 
+									free($1->size);
+									$1->size = $3;
+									$$->tip = $1;
+									$$->nume = strdup($2); 
+									$$->valoare = 0;
+								}
       ;
 
 /* bloc */
@@ -159,16 +162,85 @@ list :  statement ';'
 
 /* instructiune */
 
-lvalue : ID
-	   | lvalue '.' ID /*date membru*/
+/* lvalue : ID {
+				if(exists_variable($1)==1)
+				{
+					printf("%s variable exists.\n",$1);
+				}
+				else
+				{
+					//printf("%s doesn't exists.\n",$1);
+					yyerror("Variable is not declared.");
+    				exit(0);
+				}
+			}
+	   | lvalue '.' ID {
+							if(exists_variable($3)==1)
+							{
+								printf("%s variable exists.\n",$3);
+							}
+							else
+							{
+								//printf("%s doesn't exists.\n",$3);
+								yyerror("Variable is not declared.");
+								exit(0);
+							}
+						}
 	   | lvalue '[' expresie ']'
-	   ;
+	   ; */
 
-assignment : lvalue ASSIGN expresie
+assignment : ID ASSIGN expresie {
+									if(exists_variable($1)==1)
+									{
+										printf("%s variable exists.\n",$1);
+									}
+									else
+									{
+										//printf("%s doesn't exists.\n",$1);
+										yyerror("Variable is not declared.");
+										exit(0);
+									}
+								}
 		   ;
 
 statement : assignment
-          | lvalue '(' lista_apel ')'
+          | ID '(' lista_apel ')' 	{
+										if(exists_function($1)==1)
+										{
+											printf("%s function exists.\n",$1);
+											verify_parameters($1,parameters,nr_parametri);
+											if(verify_no_parameters($1)==1)
+											{
+												yyerror("Function is not declared with any parameters.");
+												exit(0);
+											}
+											else
+											{
+												printf("%s function is called correctly.\n",$1);
+											}
+											nr_parametri = 0;
+										}
+										else
+										{
+											yyerror("Function is not declared.");
+											exit(0);
+										}
+									}
+		  | ID '('')'	{
+							if(exists_function($1)==1)
+							{
+								printf("%s function exists.\n",$1);
+								if(verify_no_parameters($1)==1)
+								{
+									printf("%s function is called correctly.\n",$1);
+								}
+							}
+							else
+							{
+								yyerror("Function is not declared.");
+								exit(0);
+							}
+						}
           | eval
           | control_statement
           ;
@@ -204,10 +276,21 @@ boolean_expr : '(' boolean_expr ')'
 			 | boolean_expr_atomic
 			 ;
 
-lista_apel : /*epsilon*/
-		   | expresie
-           | lista_apel ',' expresie
-           ;
+
+lista_apel : param_apel {}
+            | lista_apel ','  param_apel {}
+            ;
+
+param_apel : ID {
+					strcpy(parameters[nr_parametri],get_type($1));
+					nr_parametri++;				
+				}
+      	   ;
+
+/* lista_apel : /*epsilon*/
+/*		   | expresie
+           | lista_apel ',' expresie 
+           ; */
 
 eval : EVAL '(' expresie ')'
 	 ;
@@ -222,15 +305,65 @@ expresie: expresie '+' expresie  {}
  | FLOAT {printf("Float : |%f|\n",$1);}
  | CHAR {printf("Char : |%c|\n",$1);}
  | BOOL {printf("Bool : |%d|\n",$1);}
- | lvalue {}
- | lvalue '(' lista_apel ')'
+ | ID 	{
+			if(exists_variable($1)==1)
+			{
+				printf("%s variable exists.\n",$1);
+			}
+			else
+			{
+				//printf("%s doesn't exists.\n",$1);
+				yyerror("Variable is not declared.");
+				exit(0);
+			}
+ 		}
+ | ID '(' lista_apel ')' 	{
+								if(exists_function($1)==1)
+								{
+									printf("%s function exists.\n",$1);
+									strcpy(function,$1);
+									verify_parameters($1,parameters,nr_parametri);
+									if(verify_no_parameters($1)==1)
+									{
+										yyerror("Function is not declared with any parameters.");
+										exit(0);
+									}
+									else
+									{
+										printf("%s function is called correctly.\n",$1);
+									}
+									nr_parametri=0;
+								}
+								else
+								{
+									yyerror("Function is not declared.");
+									exit(0);
+								}
+							}
+| ID '('')'	{
+				if(exists_function($1)==1)
+				{
+					printf("%s function exists.\n",$1);
+					if(verify_no_parameters($1)==1)
+					{
+						printf("%s function is called correctly.\n",$1);
+					}
+				}
+				else
+				{
+					yyerror("Function is not declared.");
+					exit(0);
+				}
+			}
  ;
 %%
-void yyerror(char * s){
-  printf("eroare: %s la linia:%d\n",s,yylineno);
+void yyerror(char * s)
+{
+  	printf("ERROR: %s line:%d\n",s,yylineno);
 }
 
-int main(int argc, char** argv){
-  yyin=fopen(argv[1],"r");
-  yyparse();
+int main(int argc, char** argv)
+{
+	yyin=fopen(argv[1],"r");
+	yyparse();
 }

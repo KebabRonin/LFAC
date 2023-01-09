@@ -33,7 +33,7 @@
 "=="|(<=?)|(>=?)|"!=" {return CMP_OP;}
 [_a-zA-Z][_a-zA-Z0-9]* {yylval.strval=strdup(yytext); return ID;}
 \'[a-zA-Z0-9 _\-=+()\\/?;:'!@#$%^&*]\' {yylval.charval=yytext[1]; return CHAR;}
-":=" {return ASSIGN;}
+"=" {return ASSIGN;}
 [0-9]+ {yylval.intval = atoi(yytext); return NR;}
 [0-9]+"."[0-9]+ {yylval.floatval = atof(yytext); return FLOAT;}
 \"[a-zA-Z0-9 _\-=+()\\/?;:'!@#$%^&*]*\" { yylval.strval=strndup(yytext+1, strlen(yytext+1) -1); return STRING;}

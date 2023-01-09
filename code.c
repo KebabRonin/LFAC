@@ -6,8 +6,20 @@
 static struct tabela_simboluri sy_table;
 static struct tabela_functii   fn_table;
 
-void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix) {
-	struct simbol newentry;
+void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix) 
+{
+	
+    int i=0;
+    for(i=0;i< sy_table.nr_entries; i++)
+    {
+        if(strcmp(sy_table.entries[i].nume,nume)==0)
+        {
+            yyerror("Variable already declared.");
+            exit(0);
+        }
+    }
+
+    struct simbol newentry;
     newentry.tip = malloc(sizeof(struct Tip_Date));
     printf("Entered new entry\n");
 	newentry.nume = strdup(nume);
@@ -67,7 +79,30 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 	sy_table.entries[sy_table.nr_entries++] = newentry;
 }
 
-void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) {
+
+void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) 
+{
+
+    int j=0;
+    for(j=0;j< sy_table.nr_entries; j++)
+    {
+        if(strcmp(sy_table.entries[j].nume,nume)==0)
+        {
+            yyerror("There already exists a variable with that name.\n");
+            exit(0);
+        }
+    }
+    int k=0;
+    for(k=0;k< fn_table.nr_entries; k++)
+    {
+        if(strcmp(fn_table.entries[k].name,nume)==0)
+        {
+            yyerror("There already exists a function with that name.\n");
+            exit(0);
+        }
+    }
+
+
 	struct functie newentry;
     newentry.return_type = ret;
     printf("%p\n", newentry.return_type);
@@ -90,6 +125,80 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) {
     
 	fn_table.entries[fn_table.nr_entries++] = newentry;
 }
+
+
+int exists_variable(char *s)
+{
+    int i=0;
+    for(i=0;i<sy_table.nr_entries;i++)
+    {
+        if(strcmp(s,sy_table.entries[i].nume)==0)
+            return 1;
+    }
+    return 0;
+}
+
+int exists_function(char *s)
+{
+    int i=0;
+    for(i=0;i<fn_table.nr_entries;i++)
+    {
+        if(strcmp(s,fn_table.entries[i].name)==0)
+            return 1;
+    }
+    return 0;
+}
+
+char* get_type(char* s)
+{
+    int i=0;
+    for(i=0;i<sy_table.nr_entries;i++)
+    {
+        if(strcmp(s,sy_table.entries[i].nume)==0)
+        {
+            printf("%s\n",sy_table.entries[i].tip->tip);
+            return sy_table.entries[i].tip->tip;
+        }
+    }
+    return "NULL";
+}
+
+int verify_no_parameters(char* s)
+{
+    int i=0;
+    for(i=0;i<fn_table.nr_entries;i++)
+    {
+        if(strcmp(s,fn_table.entries[i].name)==0)
+            break;
+    }
+    printf("nr_param = %d\n",fn_table.entries[i].nr_param);
+    if(fn_table.entries[i].nr_param == 0)
+    {
+        return 1;
+    }
+    return 0;
+}
+void verify_parameters(char* s,char* parameters[10][10],int nr_parametri)
+{
+    int i=0;
+    for(i=0;i<fn_table.nr_entries;i++)
+    {
+        if(strcmp(s,fn_table.entries[i].name)==0)
+            break;
+    }
+    printf("nr_param = %d\n",fn_table.entries[i].nr_param);
+    
+    int j=0;
+    for(j=0;j<nr_parametri;j++)
+    {
+        if(strcmp(parameters[j],fn_table.entries[i].param[j]->tip->tip)!=0)
+        {
+            yyerror("Argument type doesn't match.");
+			exit(0);
+        }
+    }
+}
+
 
 void export_sy_table() {
     int fd = open("symbol_table.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);
