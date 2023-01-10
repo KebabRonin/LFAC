@@ -54,7 +54,7 @@ progr: declaratii_globale declaratii_fnc declaratii_structuri bloc {printf("prog
 	 ;
 
 declaratii_globale : /*epsilon*/
-				   | GLOBDEF declaratii_globale_atomic {export_sy_table();}
+				   | GLOBDEF { sym_table = &sy_table; } declaratii_globale_atomic {export_sy_table();}
 				   ;
 
 declaratii_globale_atomic : /*epsilon*/
@@ -78,8 +78,34 @@ declaratii_structuri : /*epsilon*/
 			   | STRUCTDEF declaratii_structuri_atomic
 			   ;
 
+lista_date_membru : /*epsilon*/
+				   | lista_date_membru tip_date {
+					now_declaring = $2; 
+					} lista_id ';'  
+				   ;
+
+opt_lista_id: lista_id
+			| /*epsilon*/
+			;
+
 declaratii_structuri_atomic : /*epsilon*/
-					 | declaratii_structuri_atomic CLASS ID '{' declaratii_globale_atomic '}'
+					 | declaratii_structuri_atomic CLASS ID  {
+					userdef_table.dimensiune[userdef_table.nr_dimensiuni] = (char*) (malloc(sizeof(struct UserDef))); 
+					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->nume = strdup($3);
+					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date = malloc(sizeof(struct tabela_simboluri));
+					sym_table = (((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date);
+					userdef_table.nr_dimensiuni++;
+					} '{' lista_date_membru '}' {
+						now_declaring = malloc(sizeof(struct Tip_Date));
+						now_declaring->is_const = 0;
+						now_declaring->tip = strdup($3);
+						sym_table = &sy_table;
+					} opt_lista_id {
+						now_declaring->is_const = 0;
+						free(now_declaring->tip);
+						free(now_declaring);
+						now_declaring = 0;
+					}';'
 					 ;
 
 tip_date : TIP {$$ = malloc(sizeof(struct Tip_Date)); $$->tip = strdup($1); $$->is_const = 0; 
@@ -405,9 +431,10 @@ expresie: expresie '+' expresie  	{
 			tipuri_expresii[nr_expresii] = 5;
 			nr_expresii++;
 		}
- | ID 	{
+ | ID lista_array	{
 			if(exists_variable($1)==1)
 			{
+				check_arrayList($1, $2);
 				nume_typeof = $1;
 				if(get_typeof($1)==1)
 				{

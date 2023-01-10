@@ -1,6 +1,6 @@
-Nume: b, Tip:string, Const?:0, size:1
-Nume: j, Tip:int, Const?:0, size:1
+Nume: b, Tip:string, Const?:0, size:100
+Nume: j, Tip:char, Const?:0, size:1
 Nume: a, Tip:float, Const?:0, size:1
-Nume: c, Tip:float, Const?:0, size:21600
+Nume: c, Tip:float, Const?:0, size:3
 Nume: m, Tip:int, Const?:0, size:3
-Nume: o, Tip:bool, Const?:0, size:1
+Nume: o, Tip:int, Const?:0, size:1

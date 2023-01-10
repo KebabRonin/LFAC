@@ -1,28 +1,27 @@
 _global
 
-string b;
-int j;
-float a,c[3][100][3][4][6];
+string b[100];
+char j;
+float a,c[3];
 int m[3];
-bool o;
+int o;
 _fnc
 
-bool f(string b[200][3],int j,float a);
+int f(string b[200][3],char j,float a);
 int g();
 
 _userdef
 
-struct Mystruct {}
+struct Mystruct {int fd;}fsdada;
 
 
 begin_progr
-
-	TypeOf(g() + j);
-	TypeOf(o + f(b,j,a));
+	TypeOf(b[1]);
+	TypeOf(o + f(b,j,a) + (5/2));
 	m = 3;
 	m = g();
-	if ( ( c != 2.4 or a == c and a > 2.3 ) ) {
-		m=3;
+	if ( ( c[2] != 2.4 or a == c[0] and a > 2.3 ) ) {
+		m=5/2;
 	}
 	
 end_progr

@@ -3,19 +3,29 @@
 #include <stddef.h>
 #include "code.h"
 
-static struct tabela_simboluri sy_table;
-static struct tabela_functii   fn_table;
-
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix) 
 {
 	
     int i=0;
-    for(i=0;i< sy_table.nr_entries; i++)
+    for(i=0;i< sym_table->nr_entries; i++)
     {
-        if(strcmp(sy_table.entries[i].nume,nume)==0)
+        if(strcmp(sym_table->entries[i].nume,nume)==0)
         {
             char* error[100];
             strcpy(error,"There already exists a variable called \"");
+            strcat(error,nume);
+            strcat(error, "\".");
+            yyerror(strdup(error));
+            exit(0);
+        }
+    }
+    int k=0;
+    for(k=0;k< fn_table.nr_entries; k++)
+    {
+        if(strcmp(fn_table.entries[k].name,nume)==0)
+        {
+            char* error[100];
+            strcpy(error,"There already exists a function called \"");
             strcat(error,nume);
             strcat(error, "\".");
             yyerror(strdup(error));
@@ -67,7 +77,10 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 	}
 	else if(0 == strcmp(tip,"char")) {
 		newentry.valoare = malloc(sizeof(char) * size);
-		*((char*)newentry.valoare) = *((char*) valoare);
+		if (valoare != 0)
+    		*((char*)newentry.valoare) = *((char*) valoare);
+        else 
+            *((char*)newentry.valoare) = 0;
 	}
 	else if(0 == strcmp(tip,"string")) {
         newentry.valoare = malloc(sizeof(char*) * size);
@@ -78,7 +91,7 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
             newentry.valoare = strdup("");
 		
 	}
-	sy_table.entries[sy_table.nr_entries++] = newentry;
+	sym_table->entries[sym_table->nr_entries++] = newentry;
 }
 void verify_expresie(int tipuri_expresii[100],int nr_expresii)
 {
@@ -169,12 +182,31 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param)
 int exists_variable(char *s)
 {
     int i=0;
-    for(i=0;i<sy_table.nr_entries;i++)
+    for(i=0;i<sym_table->nr_entries;i++)
     {
-        if(strcmp(s,sy_table.entries[i].nume)==0)
+        if(strcmp(s,sym_table->entries[i].nume)==0)
             return 1;
     }
     return 0;
+}
+void check_arrayList(char* nume, struct list* array_sizes) {
+    int i=0;
+    for(i=0;i<sy_table.nr_entries;i++)
+    {
+        if(strcmp(nume,sy_table.entries[i].nume)==0)
+            break;
+    }
+    if(array_sizes->nr_dimensiuni != sy_table.entries[i].tip->size->nr_dimensiuni) {
+        yyerror("Numar incorect de dimensiuni");
+        exit(0);
+    }
+    for(int j = 0; j < array_sizes->nr_dimensiuni; j++) {
+        if( 0 > *((int*)(array_sizes->dimensiune[j])) || *((int*)(array_sizes->dimensiune[j])) >= *((int*)(sy_table.entries[i].tip->size->dimensiune[j]))) {
+            printf("%d,%d\n",*((int*)(array_sizes->dimensiune[j])), *((int*)(sy_table.entries[i].tip->size->dimensiune[j])));
+            yyerror("index out of bounds");
+            exit(0);
+        }
+    }
 }
 int exists_function(char *s)
 {

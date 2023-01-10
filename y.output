@@ -5,255 +5,299 @@ Grammar
     1 progr: declaratii_globale declaratii_fnc declaratii_structuri bloc
 
     2 declaratii_globale: %empty
-    3                   | GLOBDEF declaratii_globale_atomic
 
-    4 declaratii_globale_atomic: %empty
-    5                          | declaratii_globale_atomic tip_date lista_id ';'
+    3 $@1: %empty
 
-    6 declaratii_fnc: %empty
-    7               | FNCDEF declaratii_fnc_atomic
+    4 declaratii_globale: GLOBDEF $@1 declaratii_globale_atomic
 
-    8 declaratii_fnc_atomic: %empty
-    9                      | declaratii_fnc_atomic tip_date ID '(' lista_param ')' ';'
-   10                      | declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}'
+    5 declaratii_globale_atomic: %empty
 
-   11 declaratii_structuri: %empty
-   12                     | STRUCTDEF declaratii_structuri_atomic
+    6 $@2: %empty
 
-   13 declaratii_structuri_atomic: %empty
-   14                            | declaratii_structuri_atomic CLASS ID '{' declaratii_globale_atomic '}'
+    7 declaratii_globale_atomic: declaratii_globale_atomic tip_date $@2 lista_id ';'
 
-   15 tip_date: TIP
-   16         | CONST TIP
-   17         | CLASS ID
-   18         | CONST CLASS ID
-   19         | typeof
-   20         | CONST typeof
+    8 declaratii_fnc: %empty
+    9               | FNCDEF declaratii_fnc_atomic
 
-   21 typeof: TYPEOF '(' ID ')'
-   22       | TYPEOF '(' TIP ')'
-   23       | TYPEOF '(' NR ')'
-   24       | TYPEOF '(' BOOL ')'
-   25       | TYPEOF '(' STRING ')'
-   26       | TYPEOF '(' CHAR ')'
-   27       | TYPEOF '(' FLOAT ')'
+   10 declaratii_fnc_atomic: %empty
+   11                      | declaratii_fnc_atomic tip_date ID '(' lista_param ')' ';'
+   12                      | declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}'
 
-   28 lista_array: %empty
-   29            | '[' NR ']' lista_array
+   13 declaratii_structuri: %empty
+   14                     | STRUCTDEF declaratii_structuri_atomic
 
-   30 lista_id: ID lista_array
-   31         | ID lista_array ASSIGN expresie
-   32         | lista_id ',' ID lista_array
-   33         | lista_id ',' ID lista_array ASSIGN expresie
+   15 lista_date_membru: %empty
 
-   34 lista_param: %empty
-   35            | param
-   36            | lista_param ',' param
+   16 $@3: %empty
 
-   37 param: tip_date ID
+   17 lista_date_membru: lista_date_membru tip_date $@3 lista_id ';'
 
-   38 bloc: BGIN list END
+   18 opt_lista_id: lista_id
+   19             | %empty
 
-   39 instr_bloc: statement
-   40           | '{' list '}'
+   20 declaratii_structuri_atomic: %empty
 
-   41 list: statement ';'
-   42     | control_statement
-   43     | list control_statement
-   44     | list statement ';'
+   21 $@4: %empty
 
-   45 lvalue: ID
-   46       | lvalue '.' ID
-   47       | lvalue '[' expresie ']'
+   22 $@5: %empty
 
-   48 assignment: lvalue ASSIGN expresie
+   23 $@6: %empty
 
-   49 statement: assignment
-   50          | lvalue '(' lista_apel ')'
-   51          | eval
-   52          | control_statement
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru '}' $@5 opt_lista_id $@6 ';'
 
-   53 control_statement: if_statement
-   54                  | while_statement
-   55                  | do_while_statement
-   56                  | for_statement
+   25 tip_date: TIP
+   26         | CONST TIP
+   27         | CLASS ID
+   28         | CONST CLASS ID
+   29         | typeof
 
-   57 if_statement: IF '(' boolean_expr ')' instr_bloc else_statement
-   58             | IF '(' boolean_expr ')' instr_bloc
+   30 typeof: TYPEOF '(' expresie ')'
 
-   59 else_statement: ELSE instr_bloc
+   31 lista_array: %empty
+   32            | '[' NR ']' lista_array
 
-   60 while_statement: WHILE '(' boolean_expr ')' instr_bloc
+   33 lista_id: ID lista_array
+   34         | ID lista_array ASSIGN expresie
+   35         | lista_id ',' ID lista_array
+   36         | lista_id ',' ID lista_array ASSIGN expresie
 
-   61 do_while_statement: DO instr_bloc WHILE '(' boolean_expr ')' ';'
+   37 lista_param: %empty
+   38            | lista_param_non_void
 
-   62 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc
+   39 lista_param_non_void: param
+   40                     | lista_param_non_void ',' param
 
-   63 boolean_expr_atomic: expresie CMP_OP expresie
+   41 param: tip_date ID lista_array
 
-   64 boolean_expr: '(' boolean_expr ')'
-   65             | boolean_expr BOOLAND boolean_expr
-   66             | boolean_expr BOOLOR boolean_expr
-   67             | boolean_expr_atomic
+   42 bloc: BGIN list END
+   43     | BGIN END
 
-   68 lista_apel: %empty
-   69           | expresie
-   70           | lista_apel ',' expresie
+   44 instr_bloc: statement
+   45           | '{' list '}'
 
-   71 eval: EVAL '(' expresie ')'
+   46 list: statement ';'
+   47     | control_statement
+   48     | list control_statement
+   49     | list statement ';'
 
-   72 expresie: expresie '+' expresie
-   73         | expresie '*' expresie
-   74         | expresie '-' expresie
-   75         | expresie '/' expresie
-   76         | '(' expresie ')'
-   77         | NR
-   78         | STRING
-   79         | FLOAT
-   80         | CHAR
-   81         | BOOL
-   82         | lvalue
-   83         | lvalue '(' lista_apel ')'
+   50 assignment: ID ASSIGN expresie
+
+   51 statement: assignment
+   52          | ID '(' lista_apel ')'
+   53          | ID '(' ')'
+   54          | eval
+   55          | typeof
+   56          | control_statement
+
+   57 control_statement: if_statement
+   58                  | while_statement
+   59                  | do_while_statement
+   60                  | for_statement
+
+   61 if_statement: IF '(' boolean_expr ')' instr_bloc else_statement
+   62             | IF '(' boolean_expr ')' instr_bloc
+
+   63 else_statement: ELSE instr_bloc
+
+   64 while_statement: WHILE '(' boolean_expr ')' instr_bloc
+
+   65 do_while_statement: DO instr_bloc WHILE '(' boolean_expr ')' ';'
+
+   66 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc
+
+   67 boolean_expr_atomic: expresie CMP_OP expresie
+
+   68 boolean_expr: '(' boolean_expr ')'
+   69             | boolean_expr BOOLAND boolean_expr
+   70             | boolean_expr BOOLOR boolean_expr
+   71             | boolean_expr_atomic
+
+   72 lista_apel: param_apel
+   73           | lista_apel ',' param_apel
+
+   74 param_apel: ID
+
+   75 eval: EVAL '(' expresie ')'
+
+   76 expresie: expresie '+' expresie
+   77         | expresie '*' expresie
+   78         | expresie '-' expresie
+   79         | expresie '/' expresie
+   80         | '(' expresie ')'
+   81         | NR
+   82         | STRING
+   83         | FLOAT
+   84         | CHAR
+   85         | BOOL
+   86         | ID lista_array
+   87         | ID '(' lista_apel ')'
+   88         | ID '(' ')'
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    '(' (40) 9 10 21 22 23 24 25 26 27 50 57 58 60 61 62 64 71 76 83
-    ')' (41) 9 10 21 22 23 24 25 26 27 50 57 58 60 61 62 64 71 76 83
-    '*' (42) 73
-    '+' (43) 72
-    ',' (44) 32 33 36 70
-    '-' (45) 74
-    '.' (46) 46
-    '/' (47) 75
-    ';' (59) 5 9 41 44 61 62
-    '[' (91) 29 47
-    ']' (93) 29 47
-    '{' (123) 10 14 40
-    '}' (125) 10 14 40
+    '(' (40) 11 12 30 52 53 61 62 64 65 66 68 75 80 87 88
+    ')' (41) 11 12 30 52 53 61 62 64 65 66 68 75 80 87 88
+    '*' (42) 77
+    '+' (43) 76
+    ',' (44) 35 36 40 73
+    '-' (45) 78
+    '/' (47) 79
+    ';' (59) 7 11 17 24 46 49 65 66
+    '[' (91) 32
+    ']' (93) 32
+    '{' (123) 12 24 45
+    '}' (125) 12 24 45
     error (256)
-    ID <strval> (258) 9 10 14 17 18 21 30 31 32 33 37 45 46
-    TIP <strval> (259) 15 16 22
-    ASSIGN <strval> (260) 31 33 48
-    NR <strval> (261) 23 29 77
-    CMP_OP <strval> (262) 63
-    CLASS <strval> (263) 14 17 18
-    STRING <strval> (264) 25 78
-    FLOAT <floatval> (265) 27 79
-    CHAR <charval> (266) 26 80
-    BOOL <intval> (267) 24 81
-    BGIN (268) 38
-    END (269) 38
-    CONST (270) 16 18 20
-    IF (271) 57 58
-    WHILE (272) 60 61
-    DO (273) 61
-    ELSE (274) 59
-    FOR (275) 62
-    BOOLAND (276) 65
-    BOOLOR (277) 66
-    TYPEOF (278) 21 22 23 24 25 26 27
-    EVAL (279) 71
-    GLOBDEF (280) 3
-    FNCDEF (281) 7
-    STRUCTDEF (282) 12
+    ID <strval> (258) 11 12 24 27 28 33 34 35 36 41 50 52 53 74 86 87 88
+    TIP <strval> (259) 25 26
+    ASSIGN <strval> (260) 34 36 50
+    NR <intval> (261) 32 81
+    CMP_OP <intval> (262) 67
+    CLASS <intval> (263) 24 27 28
+    STRING <strval> (264) 82
+    FLOAT <floatval> (265) 83
+    CHAR <charval> (266) 84
+    BOOL <intval> (267) 85
+    BGIN (268) 42 43
+    END (269) 42 43
+    CONST (270) 26 28
+    IF (271) 61 62
+    WHILE (272) 64 65
+    DO (273) 65
+    ELSE (274) 63
+    FOR (275) 66
+    BOOLAND (276) 69
+    BOOLOR (277) 70
+    TYPEOF (278) 30
+    EVAL (279) 75
+    GLOBDEF (280) 4
+    FNCDEF (281) 9
+    STRUCTDEF (282) 14
 
 
 Nonterminals, with rules where they appear
 
-    $accept (41)
+    $accept (40)
         on left: 0
-    progr (42)
+    progr (41)
         on left: 1
         on right: 0
-    declaratii_globale (43)
-        on left: 2 3
+    declaratii_globale (42)
+        on left: 2 4
         on right: 1
+    $@1 (43)
+        on left: 3
+        on right: 4
     declaratii_globale_atomic (44)
-        on left: 4 5
-        on right: 3 5 14
-    declaratii_fnc (45)
-        on left: 6 7
+        on left: 5 7
+        on right: 4 7
+    $@2 (45)
+        on left: 6
+        on right: 7
+    declaratii_fnc (46)
+        on left: 8 9
         on right: 1
-    declaratii_fnc_atomic (46)
-        on left: 8 9 10
-        on right: 7 9 10
-    declaratii_structuri (47)
-        on left: 11 12
-        on right: 1
-    declaratii_structuri_atomic (48)
+    declaratii_fnc_atomic (47)
+        on left: 10 11 12
+        on right: 9 11 12
+    declaratii_structuri (48)
         on left: 13 14
-        on right: 12 14
-    tip_date (49)
-        on left: 15 16 17 18 19 20
-        on right: 5 9 10 37
-    typeof (50)
-        on left: 21 22 23 24 25 26 27
-        on right: 19 20
-    lista_array (51)
-        on left: 28 29
-        on right: 29 30 31 32 33
-    lista_id (52)
-        on left: 30 31 32 33
-        on right: 5 32 33
-    lista_param (53)
-        on left: 34 35 36
-        on right: 9 10 36
-    param (54)
-        on left: 37
-        on right: 35 36
-    bloc (55)
-        on left: 38
         on right: 1
-    instr_bloc (56)
+    lista_date_membru (49)
+        on left: 15 17
+        on right: 17 24
+    $@3 (50)
+        on left: 16
+        on right: 17
+    opt_lista_id (51)
+        on left: 18 19
+        on right: 24
+    declaratii_structuri_atomic (52)
+        on left: 20 24
+        on right: 14 24
+    $@4 (53)
+        on left: 21
+        on right: 24
+    $@5 (54)
+        on left: 22
+        on right: 24
+    $@6 (55)
+        on left: 23
+        on right: 24
+    tip_date <tipD> (56)
+        on left: 25 26 27 28 29
+        on right: 7 11 12 17 41
+    typeof (57)
+        on left: 30
+        on right: 29 55
+    lista_array <ls> (58)
+        on left: 31 32
+        on right: 32 33 34 35 36 41 86
+    lista_id (59)
+        on left: 33 34 35 36
+        on right: 7 17 18 35 36
+    lista_param <ls> (60)
+        on left: 37 38
+        on right: 11 12
+    lista_param_non_void <ls> (61)
         on left: 39 40
-        on right: 57 58 59 60 61 62
-    list (57)
-        on left: 41 42 43 44
-        on right: 10 38 40 43 44
-    lvalue (58)
-        on left: 45 46 47
-        on right: 46 47 48 50 82 83
-    assignment (59)
-        on left: 48
-        on right: 49 62
-    statement (60)
-        on left: 49 50 51 52
-        on right: 39 41 44
-    control_statement (61)
-        on left: 53 54 55 56
-        on right: 42 43 52
-    if_statement (62)
-        on left: 57 58
-        on right: 53
-    else_statement (63)
-        on left: 59
+        on right: 38 40
+    param <symbol> (62)
+        on left: 41
+        on right: 39 40
+    bloc (63)
+        on left: 42 43
+        on right: 1
+    instr_bloc (64)
+        on left: 44 45
+        on right: 61 62 63 64 65 66
+    list (65)
+        on left: 46 47 48 49
+        on right: 12 42 45 48 49
+    assignment (66)
+        on left: 50
+        on right: 51 66
+    statement (67)
+        on left: 51 52 53 54 55 56
+        on right: 44 46 49
+    control_statement (68)
+        on left: 57 58 59 60
+        on right: 47 48 56
+    if_statement (69)
+        on left: 61 62
         on right: 57
-    while_statement (64)
-        on left: 60
-        on right: 54
-    do_while_statement (65)
-        on left: 61
-        on right: 55
-    for_statement (66)
-        on left: 62
-        on right: 56
-    boolean_expr_atomic (67)
+    else_statement (70)
         on left: 63
-        on right: 67
-    boolean_expr (68)
-        on left: 64 65 66 67
-        on right: 57 58 60 61 62 64 65 66
-    lista_apel (69)
-        on left: 68 69 70
-        on right: 50 70 83
-    eval (70)
-        on left: 71
-        on right: 51
-    expresie (71)
-        on left: 72 73 74 75 76 77 78 79 80 81 82 83
-        on right: 31 33 47 48 63 69 70 71 72 73 74 75 76
+        on right: 61
+    while_statement (71)
+        on left: 64
+        on right: 58
+    do_while_statement (72)
+        on left: 65
+        on right: 59
+    for_statement (73)
+        on left: 66
+        on right: 60
+    boolean_expr_atomic (74)
+        on left: 67
+        on right: 71
+    boolean_expr (75)
+        on left: 68 69 70 71
+        on right: 61 62 64 65 66 68 69 70
+    lista_apel (76)
+        on left: 72 73
+        on right: 52 73 87
+    param_apel (77)
+        on left: 74
+        on right: 72 73
+    eval (78)
+        on left: 75
+        on right: 54
+    expresie (79)
+        on left: 76 77 78 79 80 81 82 83 84 85 86 87 88
+        on right: 30 34 36 50 67 75 76 77 78 79 80
 
 
 State 0
@@ -270,11 +314,11 @@ State 0
 
 State 1
 
-    3 declaratii_globale: GLOBDEF . declaratii_globale_atomic
+    4 declaratii_globale: GLOBDEF . $@1 declaratii_globale_atomic
 
-    $default  reduce using rule 4 (declaratii_globale_atomic)
+    $default  reduce using rule 3 ($@1)
 
-    declaratii_globale_atomic  go to state 4
+    $@1  go to state 4
 
 
 State 2
@@ -290,25 +334,18 @@ State 3
 
     FNCDEF  shift, and go to state 6
 
-    $default  reduce using rule 6 (declaratii_fnc)
+    $default  reduce using rule 8 (declaratii_fnc)
 
     declaratii_fnc  go to state 7
 
 
 State 4
 
-    3 declaratii_globale: GLOBDEF declaratii_globale_atomic .
-    5 declaratii_globale_atomic: declaratii_globale_atomic . tip_date lista_id ';'
+    4 declaratii_globale: GLOBDEF $@1 . declaratii_globale_atomic
 
-    TIP     shift, and go to state 8
-    CLASS   shift, and go to state 9
-    CONST   shift, and go to state 10
-    TYPEOF  shift, and go to state 11
+    $default  reduce using rule 5 (declaratii_globale_atomic)
 
-    $default  reduce using rule 3 (declaratii_globale)
-
-    tip_date  go to state 12
-    typeof    go to state 13
+    declaratii_globale_atomic  go to state 8
 
 
 State 5
@@ -320,1864 +357,1835 @@ State 5
 
 State 6
 
-    7 declaratii_fnc: FNCDEF . declaratii_fnc_atomic
+    9 declaratii_fnc: FNCDEF . declaratii_fnc_atomic
 
-    $default  reduce using rule 8 (declaratii_fnc_atomic)
+    $default  reduce using rule 10 (declaratii_fnc_atomic)
 
-    declaratii_fnc_atomic  go to state 14
+    declaratii_fnc_atomic  go to state 9
 
 
 State 7
 
     1 progr: declaratii_globale declaratii_fnc . declaratii_structuri bloc
 
-    STRUCTDEF  shift, and go to state 15
+    STRUCTDEF  shift, and go to state 10
 
-    $default  reduce using rule 11 (declaratii_structuri)
+    $default  reduce using rule 13 (declaratii_structuri)
 
-    declaratii_structuri  go to state 16
+    declaratii_structuri  go to state 11
 
 
 State 8
 
-   15 tip_date: TIP .
+    4 declaratii_globale: GLOBDEF $@1 declaratii_globale_atomic .
+    7 declaratii_globale_atomic: declaratii_globale_atomic . tip_date $@2 lista_id ';'
 
-    $default  reduce using rule 15 (tip_date)
+    TIP     shift, and go to state 12
+    CLASS   shift, and go to state 13
+    CONST   shift, and go to state 14
+    TYPEOF  shift, and go to state 15
+
+    $default  reduce using rule 4 (declaratii_globale)
+
+    tip_date  go to state 16
+    typeof    go to state 17
 
 
 State 9
 
-   17 tip_date: CLASS . ID
+    9 declaratii_fnc: FNCDEF declaratii_fnc_atomic .
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic . tip_date ID '(' lista_param ')' ';'
+   12                      | declaratii_fnc_atomic . tip_date ID '(' lista_param ')' '{' list '}'
 
-    ID  shift, and go to state 17
+    TIP     shift, and go to state 12
+    CLASS   shift, and go to state 13
+    CONST   shift, and go to state 14
+    TYPEOF  shift, and go to state 15
+
+    $default  reduce using rule 9 (declaratii_fnc)
+
+    tip_date  go to state 18
+    typeof    go to state 17
 
 
 State 10
 
-   16 tip_date: CONST . TIP
-   18         | CONST . CLASS ID
-   20         | CONST . typeof
+   14 declaratii_structuri: STRUCTDEF . declaratii_structuri_atomic
 
-    TIP     shift, and go to state 18
-    CLASS   shift, and go to state 19
-    TYPEOF  shift, and go to state 11
+    $default  reduce using rule 20 (declaratii_structuri_atomic)
 
-    typeof  go to state 20
+    declaratii_structuri_atomic  go to state 19
 
 
 State 11
 
-   21 typeof: TYPEOF . '(' ID ')'
-   22       | TYPEOF . '(' TIP ')'
-   23       | TYPEOF . '(' NR ')'
-   24       | TYPEOF . '(' BOOL ')'
-   25       | TYPEOF . '(' STRING ')'
-   26       | TYPEOF . '(' CHAR ')'
-   27       | TYPEOF . '(' FLOAT ')'
+    1 progr: declaratii_globale declaratii_fnc declaratii_structuri . bloc
 
-    '('  shift, and go to state 21
+    BGIN  shift, and go to state 20
+
+    bloc  go to state 21
 
 
 State 12
 
-    5 declaratii_globale_atomic: declaratii_globale_atomic tip_date . lista_id ';'
+   25 tip_date: TIP .
 
-    ID  shift, and go to state 22
-
-    lista_id  go to state 23
+    $default  reduce using rule 25 (tip_date)
 
 
 State 13
 
-   19 tip_date: typeof .
+   27 tip_date: CLASS . ID
 
-    $default  reduce using rule 19 (tip_date)
+    ID  shift, and go to state 22
 
 
 State 14
 
-    7 declaratii_fnc: FNCDEF declaratii_fnc_atomic .
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic . tip_date ID '(' lista_param ')' ';'
-   10                      | declaratii_fnc_atomic . tip_date ID '(' lista_param ')' '{' list '}'
+   26 tip_date: CONST . TIP
+   28         | CONST . CLASS ID
 
-    TIP     shift, and go to state 8
-    CLASS   shift, and go to state 9
-    CONST   shift, and go to state 10
-    TYPEOF  shift, and go to state 11
-
-    $default  reduce using rule 7 (declaratii_fnc)
-
-    tip_date  go to state 24
-    typeof    go to state 13
+    TIP    shift, and go to state 23
+    CLASS  shift, and go to state 24
 
 
 State 15
 
-   12 declaratii_structuri: STRUCTDEF . declaratii_structuri_atomic
+   30 typeof: TYPEOF . '(' expresie ')'
 
-    $default  reduce using rule 13 (declaratii_structuri_atomic)
-
-    declaratii_structuri_atomic  go to state 25
+    '('  shift, and go to state 25
 
 
 State 16
 
-    1 progr: declaratii_globale declaratii_fnc declaratii_structuri . bloc
+    7 declaratii_globale_atomic: declaratii_globale_atomic tip_date . $@2 lista_id ';'
 
-    BGIN  shift, and go to state 26
+    $default  reduce using rule 6 ($@2)
 
-    bloc  go to state 27
+    $@2  go to state 26
 
 
 State 17
 
-   17 tip_date: CLASS ID .
+   29 tip_date: typeof .
 
-    $default  reduce using rule 17 (tip_date)
+    $default  reduce using rule 29 (tip_date)
 
 
 State 18
 
-   16 tip_date: CONST TIP .
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date . ID '(' lista_param ')' ';'
+   12                      | declaratii_fnc_atomic tip_date . ID '(' lista_param ')' '{' list '}'
 
-    $default  reduce using rule 16 (tip_date)
+    ID  shift, and go to state 27
 
 
 State 19
 
-   18 tip_date: CONST CLASS . ID
+   14 declaratii_structuri: STRUCTDEF declaratii_structuri_atomic .
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic . CLASS ID $@4 '{' lista_date_membru '}' $@5 opt_lista_id $@6 ';'
 
-    ID  shift, and go to state 28
+    CLASS  shift, and go to state 28
+
+    $default  reduce using rule 14 (declaratii_structuri)
 
 
 State 20
 
-   20 tip_date: CONST typeof .
+   42 bloc: BGIN . list END
+   43     | BGIN . END
 
-    $default  reduce using rule 20 (tip_date)
+    ID      shift, and go to state 29
+    END     shift, and go to state 30
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+
+    typeof              go to state 36
+    list                go to state 37
+    assignment          go to state 38
+    statement           go to state 39
+    control_statement   go to state 40
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 21
-
-   21 typeof: TYPEOF '(' . ID ')'
-   22       | TYPEOF '(' . TIP ')'
-   23       | TYPEOF '(' . NR ')'
-   24       | TYPEOF '(' . BOOL ')'
-   25       | TYPEOF '(' . STRING ')'
-   26       | TYPEOF '(' . CHAR ')'
-   27       | TYPEOF '(' . FLOAT ')'
-
-    ID      shift, and go to state 29
-    TIP     shift, and go to state 30
-    NR      shift, and go to state 31
-    STRING  shift, and go to state 32
-    FLOAT   shift, and go to state 33
-    CHAR    shift, and go to state 34
-    BOOL    shift, and go to state 35
-
-
-State 22
-
-   30 lista_id: ID . lista_array
-   31         | ID . lista_array ASSIGN expresie
-
-    '['  shift, and go to state 36
-
-    $default  reduce using rule 28 (lista_array)
-
-    lista_array  go to state 37
-
-
-State 23
-
-    5 declaratii_globale_atomic: declaratii_globale_atomic tip_date lista_id . ';'
-   32 lista_id: lista_id . ',' ID lista_array
-   33         | lista_id . ',' ID lista_array ASSIGN expresie
-
-    ';'  shift, and go to state 38
-    ','  shift, and go to state 39
-
-
-State 24
-
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date . ID '(' lista_param ')' ';'
-   10                      | declaratii_fnc_atomic tip_date . ID '(' lista_param ')' '{' list '}'
-
-    ID  shift, and go to state 40
-
-
-State 25
-
-   12 declaratii_structuri: STRUCTDEF declaratii_structuri_atomic .
-   14 declaratii_structuri_atomic: declaratii_structuri_atomic . CLASS ID '{' declaratii_globale_atomic '}'
-
-    CLASS  shift, and go to state 41
-
-    $default  reduce using rule 12 (declaratii_structuri)
-
-
-State 26
-
-   38 bloc: BGIN . list END
-
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-
-    list                go to state 48
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 51
-    control_statement   go to state 52
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
-
-
-State 27
 
     1 progr: declaratii_globale declaratii_fnc declaratii_structuri bloc .
 
     $default  reduce using rule 1 (progr)
 
 
+State 22
+
+   27 tip_date: CLASS ID .
+
+    $default  reduce using rule 27 (tip_date)
+
+
+State 23
+
+   26 tip_date: CONST TIP .
+
+    $default  reduce using rule 26 (tip_date)
+
+
+State 24
+
+   28 tip_date: CONST CLASS . ID
+
+    ID  shift, and go to state 46
+
+
+State 25
+
+   30 typeof: TYPEOF '(' . expresie ')'
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 54
+
+
+State 26
+
+    7 declaratii_globale_atomic: declaratii_globale_atomic tip_date $@2 . lista_id ';'
+
+    ID  shift, and go to state 55
+
+    lista_id  go to state 56
+
+
+State 27
+
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID . '(' lista_param ')' ';'
+   12                      | declaratii_fnc_atomic tip_date ID . '(' lista_param ')' '{' list '}'
+
+    '('  shift, and go to state 57
+
+
 State 28
 
-   18 tip_date: CONST CLASS ID .
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS . ID $@4 '{' lista_date_membru '}' $@5 opt_lista_id $@6 ';'
 
-    $default  reduce using rule 18 (tip_date)
+    ID  shift, and go to state 58
 
 
 State 29
 
-   21 typeof: TYPEOF '(' ID . ')'
+   50 assignment: ID . ASSIGN expresie
+   52 statement: ID . '(' lista_apel ')'
+   53          | ID . '(' ')'
 
-    ')'  shift, and go to state 58
+    ASSIGN  shift, and go to state 59
+    '('     shift, and go to state 60
 
 
 State 30
 
-   22 typeof: TYPEOF '(' TIP . ')'
+   43 bloc: BGIN END .
 
-    ')'  shift, and go to state 59
+    $default  reduce using rule 43 (bloc)
 
 
 State 31
 
-   23 typeof: TYPEOF '(' NR . ')'
+   61 if_statement: IF . '(' boolean_expr ')' instr_bloc else_statement
+   62             | IF . '(' boolean_expr ')' instr_bloc
 
-    ')'  shift, and go to state 60
+    '('  shift, and go to state 61
 
 
 State 32
 
-   25 typeof: TYPEOF '(' STRING . ')'
+   64 while_statement: WHILE . '(' boolean_expr ')' instr_bloc
 
-    ')'  shift, and go to state 61
+    '('  shift, and go to state 62
 
 
 State 33
 
-   27 typeof: TYPEOF '(' FLOAT . ')'
+   65 do_while_statement: DO . instr_bloc WHILE '(' boolean_expr ')' ';'
 
-    ')'  shift, and go to state 62
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '{'     shift, and go to state 63
+
+    typeof              go to state 36
+    instr_bloc          go to state 64
+    assignment          go to state 38
+    statement           go to state 65
+    control_statement   go to state 66
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 34
 
-   26 typeof: TYPEOF '(' CHAR . ')'
+   66 for_statement: FOR . '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc
 
-    ')'  shift, and go to state 63
+    '('  shift, and go to state 67
 
 
 State 35
 
-   24 typeof: TYPEOF '(' BOOL . ')'
-
-    ')'  shift, and go to state 64
-
-
-State 36
-
-   29 lista_array: '[' . NR ']' lista_array
-
-    NR  shift, and go to state 65
-
-
-State 37
-
-   30 lista_id: ID lista_array .
-   31         | ID lista_array . ASSIGN expresie
-
-    ASSIGN  shift, and go to state 66
-
-    $default  reduce using rule 30 (lista_id)
-
-
-State 38
-
-    5 declaratii_globale_atomic: declaratii_globale_atomic tip_date lista_id ';' .
-
-    $default  reduce using rule 5 (declaratii_globale_atomic)
-
-
-State 39
-
-   32 lista_id: lista_id ',' . ID lista_array
-   33         | lista_id ',' . ID lista_array ASSIGN expresie
-
-    ID  shift, and go to state 67
-
-
-State 40
-
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID . '(' lista_param ')' ';'
-   10                      | declaratii_fnc_atomic tip_date ID . '(' lista_param ')' '{' list '}'
+   75 eval: EVAL . '(' expresie ')'
 
     '('  shift, and go to state 68
 
 
-State 41
+State 36
 
-   14 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS . ID '{' declaratii_globale_atomic '}'
+   55 statement: typeof .
 
-    ID  shift, and go to state 69
+    $default  reduce using rule 55 (statement)
 
 
-State 42
+State 37
 
-   45 lvalue: ID .
+   42 bloc: BGIN list . END
+   48 list: list . control_statement
+   49     | list . statement ';'
 
-    $default  reduce using rule 45 (lvalue)
+    ID      shift, and go to state 29
+    END     shift, and go to state 69
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
 
+    typeof              go to state 36
+    assignment          go to state 38
+    statement           go to state 70
+    control_statement   go to state 71
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
-State 43
 
-   57 if_statement: IF . '(' boolean_expr ')' instr_bloc else_statement
-   58             | IF . '(' boolean_expr ')' instr_bloc
+State 38
 
-    '('  shift, and go to state 70
-
-
-State 44
-
-   60 while_statement: WHILE . '(' boolean_expr ')' instr_bloc
-
-    '('  shift, and go to state 71
-
-
-State 45
-
-   61 do_while_statement: DO . instr_bloc WHILE '(' boolean_expr ')' ';'
-
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '{'    shift, and go to state 72
-
-    instr_bloc          go to state 73
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 74
-    control_statement   go to state 75
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
-
-
-State 46
-
-   62 for_statement: FOR . '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc
-
-    '('  shift, and go to state 76
-
-
-State 47
-
-   71 eval: EVAL . '(' expresie ')'
-
-    '('  shift, and go to state 77
-
-
-State 48
-
-   38 bloc: BGIN list . END
-   43 list: list . control_statement
-   44     | list . statement ';'
-
-    ID     shift, and go to state 42
-    END    shift, and go to state 78
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 79
-    control_statement   go to state 80
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
-
-
-State 49
-
-   46 lvalue: lvalue . '.' ID
-   47       | lvalue . '[' expresie ']'
-   48 assignment: lvalue . ASSIGN expresie
-   50 statement: lvalue . '(' lista_apel ')'
-
-    ASSIGN  shift, and go to state 81
-    '('     shift, and go to state 82
-    '['     shift, and go to state 83
-    '.'     shift, and go to state 84
-
-
-State 50
-
-   49 statement: assignment .
-
-    $default  reduce using rule 49 (statement)
-
-
-State 51
-
-   41 list: statement . ';'
-
-    ';'  shift, and go to state 85
-
-
-State 52
-
-   42 list: control_statement .
-   52 statement: control_statement .
-
-    ';'       reduce using rule 52 (statement)
-    $default  reduce using rule 42 (list)
-
-
-State 53
-
-   53 control_statement: if_statement .
-
-    $default  reduce using rule 53 (control_statement)
-
-
-State 54
-
-   54 control_statement: while_statement .
-
-    $default  reduce using rule 54 (control_statement)
-
-
-State 55
-
-   55 control_statement: do_while_statement .
-
-    $default  reduce using rule 55 (control_statement)
-
-
-State 56
-
-   56 control_statement: for_statement .
-
-    $default  reduce using rule 56 (control_statement)
-
-
-State 57
-
-   51 statement: eval .
+   51 statement: assignment .
 
     $default  reduce using rule 51 (statement)
 
 
+State 39
+
+   46 list: statement . ';'
+
+    ';'  shift, and go to state 72
+
+
+State 40
+
+   47 list: control_statement .
+   56 statement: control_statement .
+
+    ';'       reduce using rule 56 (statement)
+    $default  reduce using rule 47 (list)
+
+
+State 41
+
+   57 control_statement: if_statement .
+
+    $default  reduce using rule 57 (control_statement)
+
+
+State 42
+
+   58 control_statement: while_statement .
+
+    $default  reduce using rule 58 (control_statement)
+
+
+State 43
+
+   59 control_statement: do_while_statement .
+
+    $default  reduce using rule 59 (control_statement)
+
+
+State 44
+
+   60 control_statement: for_statement .
+
+    $default  reduce using rule 60 (control_statement)
+
+
+State 45
+
+   54 statement: eval .
+
+    $default  reduce using rule 54 (statement)
+
+
+State 46
+
+   28 tip_date: CONST CLASS ID .
+
+    $default  reduce using rule 28 (tip_date)
+
+
+State 47
+
+   86 expresie: ID . lista_array
+   87         | ID . '(' lista_apel ')'
+   88         | ID . '(' ')'
+
+    '('  shift, and go to state 73
+    '['  shift, and go to state 74
+
+    $default  reduce using rule 31 (lista_array)
+
+    lista_array  go to state 75
+
+
+State 48
+
+   81 expresie: NR .
+
+    $default  reduce using rule 81 (expresie)
+
+
+State 49
+
+   82 expresie: STRING .
+
+    $default  reduce using rule 82 (expresie)
+
+
+State 50
+
+   83 expresie: FLOAT .
+
+    $default  reduce using rule 83 (expresie)
+
+
+State 51
+
+   84 expresie: CHAR .
+
+    $default  reduce using rule 84 (expresie)
+
+
+State 52
+
+   85 expresie: BOOL .
+
+    $default  reduce using rule 85 (expresie)
+
+
+State 53
+
+   80 expresie: '(' . expresie ')'
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 76
+
+
+State 54
+
+   30 typeof: TYPEOF '(' expresie . ')'
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+    ')'  shift, and go to state 81
+
+
+State 55
+
+   33 lista_id: ID . lista_array
+   34         | ID . lista_array ASSIGN expresie
+
+    '['  shift, and go to state 74
+
+    $default  reduce using rule 31 (lista_array)
+
+    lista_array  go to state 82
+
+
+State 56
+
+    7 declaratii_globale_atomic: declaratii_globale_atomic tip_date $@2 lista_id . ';'
+   35 lista_id: lista_id . ',' ID lista_array
+   36         | lista_id . ',' ID lista_array ASSIGN expresie
+
+    ';'  shift, and go to state 83
+    ','  shift, and go to state 84
+
+
+State 57
+
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' . lista_param ')' ';'
+   12                      | declaratii_fnc_atomic tip_date ID '(' . lista_param ')' '{' list '}'
+
+    TIP     shift, and go to state 12
+    CLASS   shift, and go to state 13
+    CONST   shift, and go to state 14
+    TYPEOF  shift, and go to state 15
+
+    $default  reduce using rule 37 (lista_param)
+
+    tip_date              go to state 85
+    typeof                go to state 17
+    lista_param           go to state 86
+    lista_param_non_void  go to state 87
+    param                 go to state 88
+
+
 State 58
 
-   21 typeof: TYPEOF '(' ID ')' .
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID . $@4 '{' lista_date_membru '}' $@5 opt_lista_id $@6 ';'
 
-    $default  reduce using rule 21 (typeof)
+    $default  reduce using rule 21 ($@4)
+
+    $@4  go to state 89
 
 
 State 59
 
-   22 typeof: TYPEOF '(' TIP ')' .
+   50 assignment: ID ASSIGN . expresie
 
-    $default  reduce using rule 22 (typeof)
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 90
 
 
 State 60
 
-   23 typeof: TYPEOF '(' NR ')' .
+   52 statement: ID '(' . lista_apel ')'
+   53          | ID '(' . ')'
 
-    $default  reduce using rule 23 (typeof)
+    ID   shift, and go to state 91
+    ')'  shift, and go to state 92
+
+    lista_apel  go to state 93
+    param_apel  go to state 94
 
 
 State 61
 
-   25 typeof: TYPEOF '(' STRING ')' .
+   61 if_statement: IF '(' . boolean_expr ')' instr_bloc else_statement
+   62             | IF '(' . boolean_expr ')' instr_bloc
 
-    $default  reduce using rule 25 (typeof)
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
+
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 97
+    expresie             go to state 98
 
 
 State 62
 
-   27 typeof: TYPEOF '(' FLOAT ')' .
+   64 while_statement: WHILE '(' . boolean_expr ')' instr_bloc
 
-    $default  reduce using rule 27 (typeof)
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
+
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 99
+    expresie             go to state 98
 
 
 State 63
 
-   26 typeof: TYPEOF '(' CHAR ')' .
+   45 instr_bloc: '{' . list '}'
 
-    $default  reduce using rule 26 (typeof)
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+
+    typeof              go to state 36
+    list                go to state 100
+    assignment          go to state 38
+    statement           go to state 39
+    control_statement   go to state 40
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 64
 
-   24 typeof: TYPEOF '(' BOOL ')' .
+   65 do_while_statement: DO instr_bloc . WHILE '(' boolean_expr ')' ';'
 
-    $default  reduce using rule 24 (typeof)
+    WHILE  shift, and go to state 101
 
 
 State 65
 
-   29 lista_array: '[' NR . ']' lista_array
+   44 instr_bloc: statement .
 
-    ']'  shift, and go to state 86
+    $default  reduce using rule 44 (instr_bloc)
 
 
 State 66
 
-   31 lista_id: ID lista_array ASSIGN . expresie
+   56 statement: control_statement .
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 94
+    $default  reduce using rule 56 (statement)
 
 
 State 67
 
-   32 lista_id: lista_id ',' ID . lista_array
-   33         | lista_id ',' ID . lista_array ASSIGN expresie
+   66 for_statement: FOR '(' . assignment ';' boolean_expr ';' assignment ')' instr_bloc
 
-    '['  shift, and go to state 36
+    ID  shift, and go to state 102
 
-    $default  reduce using rule 28 (lista_array)
-
-    lista_array  go to state 95
+    assignment  go to state 103
 
 
 State 68
 
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' . lista_param ')' ';'
-   10                      | declaratii_fnc_atomic tip_date ID '(' . lista_param ')' '{' list '}'
+   75 eval: EVAL '(' . expresie ')'
 
-    TIP     shift, and go to state 8
-    CLASS   shift, and go to state 9
-    CONST   shift, and go to state 10
-    TYPEOF  shift, and go to state 11
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
 
-    $default  reduce using rule 34 (lista_param)
-
-    tip_date     go to state 96
-    typeof       go to state 13
-    lista_param  go to state 97
-    param        go to state 98
+    expresie  go to state 104
 
 
 State 69
 
-   14 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID . '{' declaratii_globale_atomic '}'
+   42 bloc: BGIN list END .
 
-    '{'  shift, and go to state 99
+    $default  reduce using rule 42 (bloc)
 
 
 State 70
 
-   57 if_statement: IF '(' . boolean_expr ')' instr_bloc else_statement
-   58             | IF '(' . boolean_expr ')' instr_bloc
+   49 list: list statement . ';'
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
-
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 102
-    expresie             go to state 103
+    ';'  shift, and go to state 105
 
 
 State 71
 
-   60 while_statement: WHILE '(' . boolean_expr ')' instr_bloc
+   48 list: list control_statement .
+   56 statement: control_statement .
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
-
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 104
-    expresie             go to state 103
+    ';'       reduce using rule 56 (statement)
+    $default  reduce using rule 48 (list)
 
 
 State 72
 
-   40 instr_bloc: '{' . list '}'
+   46 list: statement ';' .
 
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-
-    list                go to state 105
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 51
-    control_statement   go to state 52
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
+    $default  reduce using rule 46 (list)
 
 
 State 73
 
-   61 do_while_statement: DO instr_bloc . WHILE '(' boolean_expr ')' ';'
+   87 expresie: ID '(' . lista_apel ')'
+   88         | ID '(' . ')'
 
-    WHILE  shift, and go to state 106
+    ID   shift, and go to state 91
+    ')'  shift, and go to state 106
+
+    lista_apel  go to state 107
+    param_apel  go to state 94
 
 
 State 74
 
-   39 instr_bloc: statement .
+   32 lista_array: '[' . NR ']' lista_array
 
-    $default  reduce using rule 39 (instr_bloc)
+    NR  shift, and go to state 108
 
 
 State 75
 
-   52 statement: control_statement .
+   86 expresie: ID lista_array .
 
-    $default  reduce using rule 52 (statement)
+    $default  reduce using rule 86 (expresie)
 
 
 State 76
 
-   62 for_statement: FOR '(' . assignment ';' boolean_expr ';' assignment ')' instr_bloc
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+   80         | '(' expresie . ')'
 
-    ID  shift, and go to state 42
-
-    lvalue      go to state 107
-    assignment  go to state 108
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+    ')'  shift, and go to state 109
 
 
 State 77
 
-   71 eval: EVAL '(' . expresie ')'
+   76 expresie: expresie '+' . expresie
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
 
-    lvalue    go to state 93
-    expresie  go to state 109
+    expresie  go to state 110
 
 
 State 78
 
-   38 bloc: BGIN list END .
+   78 expresie: expresie '-' . expresie
 
-    $default  reduce using rule 38 (bloc)
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 111
 
 
 State 79
 
-   44 list: list statement . ';'
+   77 expresie: expresie '*' . expresie
 
-    ';'  shift, and go to state 110
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 112
 
 
 State 80
 
-   43 list: list control_statement .
-   52 statement: control_statement .
+   79 expresie: expresie '/' . expresie
 
-    ';'       reduce using rule 52 (statement)
-    $default  reduce using rule 43 (list)
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 113
 
 
 State 81
 
-   48 assignment: lvalue ASSIGN . expresie
+   30 typeof: TYPEOF '(' expresie ')' .
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 111
+    $default  reduce using rule 30 (typeof)
 
 
 State 82
 
-   50 statement: lvalue '(' . lista_apel ')'
+   33 lista_id: ID lista_array .
+   34         | ID lista_array . ASSIGN expresie
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
+    ASSIGN  shift, and go to state 114
 
-    $default  reduce using rule 68 (lista_apel)
-
-    lvalue      go to state 93
-    lista_apel  go to state 112
-    expresie    go to state 113
+    $default  reduce using rule 33 (lista_id)
 
 
 State 83
 
-   47 lvalue: lvalue '[' . expresie ']'
+    7 declaratii_globale_atomic: declaratii_globale_atomic tip_date $@2 lista_id ';' .
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 114
+    $default  reduce using rule 7 (declaratii_globale_atomic)
 
 
 State 84
 
-   46 lvalue: lvalue '.' . ID
+   35 lista_id: lista_id ',' . ID lista_array
+   36         | lista_id ',' . ID lista_array ASSIGN expresie
 
     ID  shift, and go to state 115
 
 
 State 85
 
-   41 list: statement ';' .
+   41 param: tip_date . ID lista_array
 
-    $default  reduce using rule 41 (list)
+    ID  shift, and go to state 116
 
 
 State 86
 
-   29 lista_array: '[' NR ']' . lista_array
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param . ')' ';'
+   12                      | declaratii_fnc_atomic tip_date ID '(' lista_param . ')' '{' list '}'
 
-    '['  shift, and go to state 36
-
-    $default  reduce using rule 28 (lista_array)
-
-    lista_array  go to state 116
+    ')'  shift, and go to state 117
 
 
 State 87
 
-   77 expresie: NR .
+   38 lista_param: lista_param_non_void .
+   40 lista_param_non_void: lista_param_non_void . ',' param
 
-    $default  reduce using rule 77 (expresie)
+    ','  shift, and go to state 118
+
+    $default  reduce using rule 38 (lista_param)
 
 
 State 88
 
-   78 expresie: STRING .
+   39 lista_param_non_void: param .
 
-    $default  reduce using rule 78 (expresie)
+    $default  reduce using rule 39 (lista_param_non_void)
 
 
 State 89
 
-   79 expresie: FLOAT .
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 . '{' lista_date_membru '}' $@5 opt_lista_id $@6 ';'
 
-    $default  reduce using rule 79 (expresie)
+    '{'  shift, and go to state 119
 
 
 State 90
 
-   80 expresie: CHAR .
+   50 assignment: ID ASSIGN expresie .
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
 
-    $default  reduce using rule 80 (expresie)
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+
+    $default  reduce using rule 50 (assignment)
 
 
 State 91
 
-   81 expresie: BOOL .
+   74 param_apel: ID .
 
-    $default  reduce using rule 81 (expresie)
+    $default  reduce using rule 74 (param_apel)
 
 
 State 92
 
-   76 expresie: '(' . expresie ')'
+   53 statement: ID '(' ')' .
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 117
+    $default  reduce using rule 53 (statement)
 
 
 State 93
 
-   46 lvalue: lvalue . '.' ID
-   47       | lvalue . '[' expresie ']'
-   82 expresie: lvalue .
-   83         | lvalue . '(' lista_apel ')'
+   52 statement: ID '(' lista_apel . ')'
+   73 lista_apel: lista_apel . ',' param_apel
 
-    '('  shift, and go to state 118
-    '['  shift, and go to state 83
-    '.'  shift, and go to state 84
-
-    $default  reduce using rule 82 (expresie)
+    ')'  shift, and go to state 120
+    ','  shift, and go to state 121
 
 
 State 94
 
-   31 lista_id: ID lista_array ASSIGN expresie .
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   72 lista_apel: param_apel .
 
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 31 (lista_id)
+    $default  reduce using rule 72 (lista_apel)
 
 
 State 95
 
-   32 lista_id: lista_id ',' ID lista_array .
-   33         | lista_id ',' ID lista_array . ASSIGN expresie
+   68 boolean_expr: '(' . boolean_expr ')'
+   80 expresie: '(' . expresie ')'
 
-    ASSIGN  shift, and go to state 123
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
 
-    $default  reduce using rule 32 (lista_id)
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 122
+    expresie             go to state 123
 
 
 State 96
 
-   37 param: tip_date . ID
+   71 boolean_expr: boolean_expr_atomic .
 
-    ID  shift, and go to state 124
+    $default  reduce using rule 71 (boolean_expr)
 
 
 State 97
 
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param . ')' ';'
-   10                      | declaratii_fnc_atomic tip_date ID '(' lista_param . ')' '{' list '}'
-   36 lista_param: lista_param . ',' param
+   61 if_statement: IF '(' boolean_expr . ')' instr_bloc else_statement
+   62             | IF '(' boolean_expr . ')' instr_bloc
+   69 boolean_expr: boolean_expr . BOOLAND boolean_expr
+   70             | boolean_expr . BOOLOR boolean_expr
 
-    ')'  shift, and go to state 125
-    ','  shift, and go to state 126
+    BOOLAND  shift, and go to state 124
+    BOOLOR   shift, and go to state 125
+    ')'      shift, and go to state 126
 
 
 State 98
 
-   35 lista_param: param .
+   67 boolean_expr_atomic: expresie . CMP_OP expresie
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
 
-    $default  reduce using rule 35 (lista_param)
+    CMP_OP  shift, and go to state 127
+    '+'     shift, and go to state 77
+    '-'     shift, and go to state 78
+    '*'     shift, and go to state 79
+    '/'     shift, and go to state 80
 
 
 State 99
 
-   14 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID '{' . declaratii_globale_atomic '}'
+   64 while_statement: WHILE '(' boolean_expr . ')' instr_bloc
+   69 boolean_expr: boolean_expr . BOOLAND boolean_expr
+   70             | boolean_expr . BOOLOR boolean_expr
 
-    $default  reduce using rule 4 (declaratii_globale_atomic)
-
-    declaratii_globale_atomic  go to state 127
+    BOOLAND  shift, and go to state 124
+    BOOLOR   shift, and go to state 125
+    ')'      shift, and go to state 128
 
 
 State 100
 
-   64 boolean_expr: '(' . boolean_expr ')'
-   76 expresie: '(' . expresie ')'
+   45 instr_bloc: '{' list . '}'
+   48 list: list . control_statement
+   49     | list . statement ';'
 
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '}'     shift, and go to state 129
 
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 128
-    expresie             go to state 129
+    typeof              go to state 36
+    assignment          go to state 38
+    statement           go to state 70
+    control_statement   go to state 71
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 101
 
-   67 boolean_expr: boolean_expr_atomic .
+   65 do_while_statement: DO instr_bloc WHILE . '(' boolean_expr ')' ';'
 
-    $default  reduce using rule 67 (boolean_expr)
+    '('  shift, and go to state 130
 
 
 State 102
 
-   57 if_statement: IF '(' boolean_expr . ')' instr_bloc else_statement
-   58             | IF '(' boolean_expr . ')' instr_bloc
-   65 boolean_expr: boolean_expr . BOOLAND boolean_expr
-   66             | boolean_expr . BOOLOR boolean_expr
+   50 assignment: ID . ASSIGN expresie
 
-    BOOLAND  shift, and go to state 130
-    BOOLOR   shift, and go to state 131
-    ')'      shift, and go to state 132
+    ASSIGN  shift, and go to state 59
 
 
 State 103
 
-   63 boolean_expr_atomic: expresie . CMP_OP expresie
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   66 for_statement: FOR '(' assignment . ';' boolean_expr ';' assignment ')' instr_bloc
 
-    CMP_OP  shift, and go to state 133
-    '+'     shift, and go to state 119
-    '-'     shift, and go to state 120
-    '*'     shift, and go to state 121
-    '/'     shift, and go to state 122
+    ';'  shift, and go to state 131
 
 
 State 104
 
-   60 while_statement: WHILE '(' boolean_expr . ')' instr_bloc
-   65 boolean_expr: boolean_expr . BOOLAND boolean_expr
-   66             | boolean_expr . BOOLOR boolean_expr
+   75 eval: EVAL '(' expresie . ')'
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
 
-    BOOLAND  shift, and go to state 130
-    BOOLOR   shift, and go to state 131
-    ')'      shift, and go to state 134
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+    ')'  shift, and go to state 132
 
 
 State 105
 
-   40 instr_bloc: '{' list . '}'
-   43 list: list . control_statement
-   44     | list . statement ';'
+   49 list: list statement ';' .
 
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '}'    shift, and go to state 135
-
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 79
-    control_statement   go to state 80
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
+    $default  reduce using rule 49 (list)
 
 
 State 106
 
-   61 do_while_statement: DO instr_bloc WHILE . '(' boolean_expr ')' ';'
+   88 expresie: ID '(' ')' .
 
-    '('  shift, and go to state 136
+    $default  reduce using rule 88 (expresie)
 
 
 State 107
 
-   46 lvalue: lvalue . '.' ID
-   47       | lvalue . '[' expresie ']'
-   48 assignment: lvalue . ASSIGN expresie
+   73 lista_apel: lista_apel . ',' param_apel
+   87 expresie: ID '(' lista_apel . ')'
 
-    ASSIGN  shift, and go to state 81
-    '['     shift, and go to state 83
-    '.'     shift, and go to state 84
+    ')'  shift, and go to state 133
+    ','  shift, and go to state 121
 
 
 State 108
 
-   62 for_statement: FOR '(' assignment . ';' boolean_expr ';' assignment ')' instr_bloc
+   32 lista_array: '[' NR . ']' lista_array
 
-    ';'  shift, and go to state 137
+    ']'  shift, and go to state 134
 
 
 State 109
 
-   71 eval: EVAL '(' expresie . ')'
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   80 expresie: '(' expresie ')' .
 
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-    ')'  shift, and go to state 138
+    $default  reduce using rule 80 (expresie)
 
 
 State 110
 
-   44 list: list statement ';' .
-
-    $default  reduce using rule 44 (list)
-
-
-State 111
-
-   48 assignment: lvalue ASSIGN expresie .
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
-
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 48 (assignment)
-
-
-State 112
-
-   50 statement: lvalue '(' lista_apel . ')'
-   70 lista_apel: lista_apel . ',' expresie
-
-    ')'  shift, and go to state 139
-    ','  shift, and go to state 140
-
-
-State 113
-
-   69 lista_apel: expresie .
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
-
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 69 (lista_apel)
-
-
-State 114
-
-   47 lvalue: lvalue '[' expresie . ']'
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
-
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-    ']'  shift, and go to state 141
-
-
-State 115
-
-   46 lvalue: lvalue '.' ID .
-
-    $default  reduce using rule 46 (lvalue)
-
-
-State 116
-
-   29 lista_array: '[' NR ']' lista_array .
-
-    $default  reduce using rule 29 (lista_array)
-
-
-State 117
-
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
-   76         | '(' expresie . ')'
-
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-    ')'  shift, and go to state 142
-
-
-State 118
-
-   83 expresie: lvalue '(' . lista_apel ')'
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    $default  reduce using rule 68 (lista_apel)
-
-    lvalue      go to state 93
-    lista_apel  go to state 143
-    expresie    go to state 113
-
-
-State 119
-
-   72 expresie: expresie '+' . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 144
-
-
-State 120
-
-   74 expresie: expresie '-' . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 145
-
-
-State 121
-
-   73 expresie: expresie '*' . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 146
-
-
-State 122
-
-   75 expresie: expresie '/' . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 147
-
-
-State 123
-
-   33 lista_id: lista_id ',' ID lista_array ASSIGN . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 148
-
-
-State 124
-
-   37 param: tip_date ID .
-
-    $default  reduce using rule 37 (param)
-
-
-State 125
-
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' . ';'
-   10                      | declaratii_fnc_atomic tip_date ID '(' lista_param ')' . '{' list '}'
-
-    ';'  shift, and go to state 149
-    '{'  shift, and go to state 150
-
-
-State 126
-
-   36 lista_param: lista_param ',' . param
-
-    TIP     shift, and go to state 8
-    CLASS   shift, and go to state 9
-    CONST   shift, and go to state 10
-    TYPEOF  shift, and go to state 11
-
-    tip_date  go to state 96
-    typeof    go to state 13
-    param     go to state 151
-
-
-State 127
-
-    5 declaratii_globale_atomic: declaratii_globale_atomic . tip_date lista_id ';'
-   14 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID '{' declaratii_globale_atomic . '}'
-
-    TIP     shift, and go to state 8
-    CLASS   shift, and go to state 9
-    CONST   shift, and go to state 10
-    TYPEOF  shift, and go to state 11
-    '}'     shift, and go to state 152
-
-    tip_date  go to state 12
-    typeof    go to state 13
-
-
-State 128
-
-   64 boolean_expr: '(' boolean_expr . ')'
-   65             | boolean_expr . BOOLAND boolean_expr
-   66             | boolean_expr . BOOLOR boolean_expr
-
-    BOOLAND  shift, and go to state 130
-    BOOLOR   shift, and go to state 131
-    ')'      shift, and go to state 153
-
-
-State 129
-
-   63 boolean_expr_atomic: expresie . CMP_OP expresie
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
-   76         | '(' expresie . ')'
-
-    CMP_OP  shift, and go to state 133
-    '+'     shift, and go to state 119
-    '-'     shift, and go to state 120
-    '*'     shift, and go to state 121
-    '/'     shift, and go to state 122
-    ')'     shift, and go to state 142
-
-
-State 130
-
-   65 boolean_expr: boolean_expr BOOLAND . boolean_expr
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
-
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 154
-    expresie             go to state 103
-
-
-State 131
-
-   66 boolean_expr: boolean_expr BOOLOR . boolean_expr
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
-
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 155
-    expresie             go to state 103
-
-
-State 132
-
-   57 if_statement: IF '(' boolean_expr ')' . instr_bloc else_statement
-   58             | IF '(' boolean_expr ')' . instr_bloc
-
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '{'    shift, and go to state 72
-
-    instr_bloc          go to state 156
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 74
-    control_statement   go to state 75
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
-
-
-State 133
-
-   63 boolean_expr_atomic: expresie CMP_OP . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 157
-
-
-State 134
-
-   60 while_statement: WHILE '(' boolean_expr ')' . instr_bloc
-
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '{'    shift, and go to state 72
-
-    instr_bloc          go to state 158
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 74
-    control_statement   go to state 75
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
-
-
-State 135
-
-   40 instr_bloc: '{' list '}' .
-
-    $default  reduce using rule 40 (instr_bloc)
-
-
-State 136
-
-   61 do_while_statement: DO instr_bloc WHILE '(' . boolean_expr ')' ';'
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
-
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 159
-    expresie             go to state 103
-
-
-State 137
-
-   62 for_statement: FOR '(' assignment ';' . boolean_expr ';' assignment ')' instr_bloc
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 100
-
-    lvalue               go to state 93
-    boolean_expr_atomic  go to state 101
-    boolean_expr         go to state 160
-    expresie             go to state 103
-
-
-State 138
-
-   71 eval: EVAL '(' expresie ')' .
-
-    $default  reduce using rule 71 (eval)
-
-
-State 139
-
-   50 statement: lvalue '(' lista_apel ')' .
-
-    $default  reduce using rule 50 (statement)
-
-
-State 140
-
-   70 lista_apel: lista_apel ',' . expresie
-
-    ID      shift, and go to state 42
-    NR      shift, and go to state 87
-    STRING  shift, and go to state 88
-    FLOAT   shift, and go to state 89
-    CHAR    shift, and go to state 90
-    BOOL    shift, and go to state 91
-    '('     shift, and go to state 92
-
-    lvalue    go to state 93
-    expresie  go to state 161
-
-
-State 141
-
-   47 lvalue: lvalue '[' expresie ']' .
-
-    $default  reduce using rule 47 (lvalue)
-
-
-State 142
-
-   76 expresie: '(' expresie ')' .
+   76 expresie: expresie . '+' expresie
+   76         | expresie '+' expresie .
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
 
     $default  reduce using rule 76 (expresie)
 
 
+State 111
+
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   78         | expresie '-' expresie .
+   79         | expresie . '/' expresie
+
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+
+    $default  reduce using rule 78 (expresie)
+
+
+State 112
+
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   77         | expresie '*' expresie .
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+
+    $default  reduce using rule 77 (expresie)
+
+
+State 113
+
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+   79         | expresie '/' expresie .
+
+    $default  reduce using rule 79 (expresie)
+
+
+State 114
+
+   34 lista_id: ID lista_array ASSIGN . expresie
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 135
+
+
+State 115
+
+   35 lista_id: lista_id ',' ID . lista_array
+   36         | lista_id ',' ID . lista_array ASSIGN expresie
+
+    '['  shift, and go to state 74
+
+    $default  reduce using rule 31 (lista_array)
+
+    lista_array  go to state 136
+
+
+State 116
+
+   41 param: tip_date ID . lista_array
+
+    '['  shift, and go to state 74
+
+    $default  reduce using rule 31 (lista_array)
+
+    lista_array  go to state 137
+
+
+State 117
+
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' . ';'
+   12                      | declaratii_fnc_atomic tip_date ID '(' lista_param ')' . '{' list '}'
+
+    ';'  shift, and go to state 138
+    '{'  shift, and go to state 139
+
+
+State 118
+
+   40 lista_param_non_void: lista_param_non_void ',' . param
+
+    TIP     shift, and go to state 12
+    CLASS   shift, and go to state 13
+    CONST   shift, and go to state 14
+    TYPEOF  shift, and go to state 15
+
+    tip_date  go to state 85
+    typeof    go to state 17
+    param     go to state 140
+
+
+State 119
+
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' . lista_date_membru '}' $@5 opt_lista_id $@6 ';'
+
+    $default  reduce using rule 15 (lista_date_membru)
+
+    lista_date_membru  go to state 141
+
+
+State 120
+
+   52 statement: ID '(' lista_apel ')' .
+
+    $default  reduce using rule 52 (statement)
+
+
+State 121
+
+   73 lista_apel: lista_apel ',' . param_apel
+
+    ID  shift, and go to state 91
+
+    param_apel  go to state 142
+
+
+State 122
+
+   68 boolean_expr: '(' boolean_expr . ')'
+   69             | boolean_expr . BOOLAND boolean_expr
+   70             | boolean_expr . BOOLOR boolean_expr
+
+    BOOLAND  shift, and go to state 124
+    BOOLOR   shift, and go to state 125
+    ')'      shift, and go to state 143
+
+
+State 123
+
+   67 boolean_expr_atomic: expresie . CMP_OP expresie
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+   80         | '(' expresie . ')'
+
+    CMP_OP  shift, and go to state 127
+    '+'     shift, and go to state 77
+    '-'     shift, and go to state 78
+    '*'     shift, and go to state 79
+    '/'     shift, and go to state 80
+    ')'     shift, and go to state 109
+
+
+State 124
+
+   69 boolean_expr: boolean_expr BOOLAND . boolean_expr
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
+
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 144
+    expresie             go to state 98
+
+
+State 125
+
+   70 boolean_expr: boolean_expr BOOLOR . boolean_expr
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
+
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 145
+    expresie             go to state 98
+
+
+State 126
+
+   61 if_statement: IF '(' boolean_expr ')' . instr_bloc else_statement
+   62             | IF '(' boolean_expr ')' . instr_bloc
+
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '{'     shift, and go to state 63
+
+    typeof              go to state 36
+    instr_bloc          go to state 146
+    assignment          go to state 38
+    statement           go to state 65
+    control_statement   go to state 66
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
+
+
+State 127
+
+   67 boolean_expr_atomic: expresie CMP_OP . expresie
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 147
+
+
+State 128
+
+   64 while_statement: WHILE '(' boolean_expr ')' . instr_bloc
+
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '{'     shift, and go to state 63
+
+    typeof              go to state 36
+    instr_bloc          go to state 148
+    assignment          go to state 38
+    statement           go to state 65
+    control_statement   go to state 66
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
+
+
+State 129
+
+   45 instr_bloc: '{' list '}' .
+
+    $default  reduce using rule 45 (instr_bloc)
+
+
+State 130
+
+   65 do_while_statement: DO instr_bloc WHILE '(' . boolean_expr ')' ';'
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
+
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 149
+    expresie             go to state 98
+
+
+State 131
+
+   66 for_statement: FOR '(' assignment ';' . boolean_expr ';' assignment ')' instr_bloc
+
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 95
+
+    boolean_expr_atomic  go to state 96
+    boolean_expr         go to state 150
+    expresie             go to state 98
+
+
+State 132
+
+   75 eval: EVAL '(' expresie ')' .
+
+    $default  reduce using rule 75 (eval)
+
+
+State 133
+
+   87 expresie: ID '(' lista_apel ')' .
+
+    $default  reduce using rule 87 (expresie)
+
+
+State 134
+
+   32 lista_array: '[' NR ']' . lista_array
+
+    '['  shift, and go to state 74
+
+    $default  reduce using rule 31 (lista_array)
+
+    lista_array  go to state 151
+
+
+State 135
+
+   34 lista_id: ID lista_array ASSIGN expresie .
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
+
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+
+    $default  reduce using rule 34 (lista_id)
+
+
+State 136
+
+   35 lista_id: lista_id ',' ID lista_array .
+   36         | lista_id ',' ID lista_array . ASSIGN expresie
+
+    ASSIGN  shift, and go to state 152
+
+    $default  reduce using rule 35 (lista_id)
+
+
+State 137
+
+   41 param: tip_date ID lista_array .
+
+    $default  reduce using rule 41 (param)
+
+
+State 138
+
+   11 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' ';' .
+
+    $default  reduce using rule 11 (declaratii_fnc_atomic)
+
+
+State 139
+
+   12 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' . list '}'
+
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+
+    typeof              go to state 36
+    list                go to state 153
+    assignment          go to state 38
+    statement           go to state 39
+    control_statement   go to state 40
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
+
+
+State 140
+
+   40 lista_param_non_void: lista_param_non_void ',' param .
+
+    $default  reduce using rule 40 (lista_param_non_void)
+
+
+State 141
+
+   17 lista_date_membru: lista_date_membru . tip_date $@3 lista_id ';'
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru . '}' $@5 opt_lista_id $@6 ';'
+
+    TIP     shift, and go to state 12
+    CLASS   shift, and go to state 13
+    CONST   shift, and go to state 14
+    TYPEOF  shift, and go to state 15
+    '}'     shift, and go to state 154
+
+    tip_date  go to state 155
+    typeof    go to state 17
+
+
+State 142
+
+   73 lista_apel: lista_apel ',' param_apel .
+
+    $default  reduce using rule 73 (lista_apel)
+
+
 State 143
 
-   70 lista_apel: lista_apel . ',' expresie
-   83 expresie: lvalue '(' lista_apel . ')'
+   68 boolean_expr: '(' boolean_expr ')' .
 
-    ')'  shift, and go to state 162
-    ','  shift, and go to state 140
+    $default  reduce using rule 68 (boolean_expr)
 
 
 State 144
 
-   72 expresie: expresie . '+' expresie
-   72         | expresie '+' expresie .
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   69 boolean_expr: boolean_expr . BOOLAND boolean_expr
+   69             | boolean_expr BOOLAND boolean_expr .
+   70             | boolean_expr . BOOLOR boolean_expr
 
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
+    BOOLOR  shift, and go to state 125
 
-    $default  reduce using rule 72 (expresie)
+    $default  reduce using rule 69 (boolean_expr)
 
 
 State 145
 
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   74         | expresie '-' expresie .
-   75         | expresie . '/' expresie
+   69 boolean_expr: boolean_expr . BOOLAND boolean_expr
+   70             | boolean_expr . BOOLOR boolean_expr
+   70             | boolean_expr BOOLOR boolean_expr .
 
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 74 (expresie)
+    $default  reduce using rule 70 (boolean_expr)
 
 
 State 146
 
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   73         | expresie '*' expresie .
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   61 if_statement: IF '(' boolean_expr ')' instr_bloc . else_statement
+   62             | IF '(' boolean_expr ')' instr_bloc .
 
-    $default  reduce using rule 73 (expresie)
+    ELSE  shift, and go to state 156
+
+    $default  reduce using rule 62 (if_statement)
+
+    else_statement  go to state 157
 
 
 State 147
 
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
-   75         | expresie '/' expresie .
+   67 boolean_expr_atomic: expresie CMP_OP expresie .
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
 
-    $default  reduce using rule 75 (expresie)
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+
+    $default  reduce using rule 67 (boolean_expr_atomic)
 
 
 State 148
 
-   33 lista_id: lista_id ',' ID lista_array ASSIGN expresie .
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   64 while_statement: WHILE '(' boolean_expr ')' instr_bloc .
 
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 33 (lista_id)
+    $default  reduce using rule 64 (while_statement)
 
 
 State 149
 
-    9 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' ';' .
+   65 do_while_statement: DO instr_bloc WHILE '(' boolean_expr . ')' ';'
+   69 boolean_expr: boolean_expr . BOOLAND boolean_expr
+   70             | boolean_expr . BOOLOR boolean_expr
 
-    $default  reduce using rule 9 (declaratii_fnc_atomic)
+    BOOLAND  shift, and go to state 124
+    BOOLOR   shift, and go to state 125
+    ')'      shift, and go to state 158
 
 
 State 150
 
-   10 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' . list '}'
+   66 for_statement: FOR '(' assignment ';' boolean_expr . ';' assignment ')' instr_bloc
+   69 boolean_expr: boolean_expr . BOOLAND boolean_expr
+   70             | boolean_expr . BOOLOR boolean_expr
 
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-
-    list                go to state 163
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 51
-    control_statement   go to state 52
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
+    BOOLAND  shift, and go to state 124
+    BOOLOR   shift, and go to state 125
+    ';'      shift, and go to state 159
 
 
 State 151
 
-   36 lista_param: lista_param ',' param .
+   32 lista_array: '[' NR ']' lista_array .
 
-    $default  reduce using rule 36 (lista_param)
+    $default  reduce using rule 32 (lista_array)
 
 
 State 152
 
-   14 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID '{' declaratii_globale_atomic '}' .
+   36 lista_id: lista_id ',' ID lista_array ASSIGN . expresie
 
-    $default  reduce using rule 14 (declaratii_structuri_atomic)
+    ID      shift, and go to state 47
+    NR      shift, and go to state 48
+    STRING  shift, and go to state 49
+    FLOAT   shift, and go to state 50
+    CHAR    shift, and go to state 51
+    BOOL    shift, and go to state 52
+    '('     shift, and go to state 53
+
+    expresie  go to state 160
 
 
 State 153
 
-   64 boolean_expr: '(' boolean_expr ')' .
+   12 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list . '}'
+   48 list: list . control_statement
+   49     | list . statement ';'
 
-    $default  reduce using rule 64 (boolean_expr)
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '}'     shift, and go to state 161
+
+    typeof              go to state 36
+    assignment          go to state 38
+    statement           go to state 70
+    control_statement   go to state 71
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 154
 
-   65 boolean_expr: boolean_expr . BOOLAND boolean_expr
-   65             | boolean_expr BOOLAND boolean_expr .
-   66             | boolean_expr . BOOLOR boolean_expr
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru '}' . $@5 opt_lista_id $@6 ';'
 
-    BOOLOR  shift, and go to state 131
+    $default  reduce using rule 22 ($@5)
 
-    $default  reduce using rule 65 (boolean_expr)
+    $@5  go to state 162
 
 
 State 155
 
-   65 boolean_expr: boolean_expr . BOOLAND boolean_expr
-   66             | boolean_expr . BOOLOR boolean_expr
-   66             | boolean_expr BOOLOR boolean_expr .
+   17 lista_date_membru: lista_date_membru tip_date . $@3 lista_id ';'
 
-    $default  reduce using rule 66 (boolean_expr)
+    $default  reduce using rule 16 ($@3)
+
+    $@3  go to state 163
 
 
 State 156
 
-   57 if_statement: IF '(' boolean_expr ')' instr_bloc . else_statement
-   58             | IF '(' boolean_expr ')' instr_bloc .
+   63 else_statement: ELSE . instr_bloc
 
-    ELSE  shift, and go to state 164
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '{'     shift, and go to state 63
 
-    $default  reduce using rule 58 (if_statement)
-
-    else_statement  go to state 165
+    typeof              go to state 36
+    instr_bloc          go to state 164
+    assignment          go to state 38
+    statement           go to state 65
+    control_statement   go to state 66
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 157
 
-   63 boolean_expr_atomic: expresie CMP_OP expresie .
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   61 if_statement: IF '(' boolean_expr ')' instr_bloc else_statement .
 
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 63 (boolean_expr_atomic)
+    $default  reduce using rule 61 (if_statement)
 
 
 State 158
 
-   60 while_statement: WHILE '(' boolean_expr ')' instr_bloc .
+   65 do_while_statement: DO instr_bloc WHILE '(' boolean_expr ')' . ';'
 
-    $default  reduce using rule 60 (while_statement)
+    ';'  shift, and go to state 165
 
 
 State 159
 
-   61 do_while_statement: DO instr_bloc WHILE '(' boolean_expr . ')' ';'
-   65 boolean_expr: boolean_expr . BOOLAND boolean_expr
-   66             | boolean_expr . BOOLOR boolean_expr
+   66 for_statement: FOR '(' assignment ';' boolean_expr ';' . assignment ')' instr_bloc
 
-    BOOLAND  shift, and go to state 130
-    BOOLOR   shift, and go to state 131
-    ')'      shift, and go to state 166
+    ID  shift, and go to state 102
+
+    assignment  go to state 166
 
 
 State 160
 
-   62 for_statement: FOR '(' assignment ';' boolean_expr . ';' assignment ')' instr_bloc
-   65 boolean_expr: boolean_expr . BOOLAND boolean_expr
-   66             | boolean_expr . BOOLOR boolean_expr
+   36 lista_id: lista_id ',' ID lista_array ASSIGN expresie .
+   76 expresie: expresie . '+' expresie
+   77         | expresie . '*' expresie
+   78         | expresie . '-' expresie
+   79         | expresie . '/' expresie
 
-    BOOLAND  shift, and go to state 130
-    BOOLOR   shift, and go to state 131
-    ';'      shift, and go to state 167
+    '+'  shift, and go to state 77
+    '-'  shift, and go to state 78
+    '*'  shift, and go to state 79
+    '/'  shift, and go to state 80
+
+    $default  reduce using rule 36 (lista_id)
 
 
 State 161
 
-   70 lista_apel: lista_apel ',' expresie .
-   72 expresie: expresie . '+' expresie
-   73         | expresie . '*' expresie
-   74         | expresie . '-' expresie
-   75         | expresie . '/' expresie
+   12 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}' .
 
-    '+'  shift, and go to state 119
-    '-'  shift, and go to state 120
-    '*'  shift, and go to state 121
-    '/'  shift, and go to state 122
-
-    $default  reduce using rule 70 (lista_apel)
+    $default  reduce using rule 12 (declaratii_fnc_atomic)
 
 
 State 162
 
-   83 expresie: lvalue '(' lista_apel ')' .
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru '}' $@5 . opt_lista_id $@6 ';'
 
-    $default  reduce using rule 83 (expresie)
+    ID  shift, and go to state 55
+
+    $default  reduce using rule 19 (opt_lista_id)
+
+    opt_lista_id  go to state 167
+    lista_id      go to state 168
 
 
 State 163
 
-   10 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list . '}'
-   43 list: list . control_statement
-   44     | list . statement ';'
+   17 lista_date_membru: lista_date_membru tip_date $@3 . lista_id ';'
 
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '}'    shift, and go to state 168
+    ID  shift, and go to state 55
 
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 79
-    control_statement   go to state 80
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
+    lista_id  go to state 169
 
 
 State 164
 
-   59 else_statement: ELSE . instr_bloc
+   63 else_statement: ELSE instr_bloc .
 
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '{'    shift, and go to state 72
-
-    instr_bloc          go to state 169
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 74
-    control_statement   go to state 75
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
+    $default  reduce using rule 63 (else_statement)
 
 
 State 165
 
-   57 if_statement: IF '(' boolean_expr ')' instr_bloc else_statement .
+   65 do_while_statement: DO instr_bloc WHILE '(' boolean_expr ')' ';' .
 
-    $default  reduce using rule 57 (if_statement)
+    $default  reduce using rule 65 (do_while_statement)
 
 
 State 166
 
-   61 do_while_statement: DO instr_bloc WHILE '(' boolean_expr ')' . ';'
+   66 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment . ')' instr_bloc
 
-    ';'  shift, and go to state 170
+    ')'  shift, and go to state 170
 
 
 State 167
 
-   62 for_statement: FOR '(' assignment ';' boolean_expr ';' . assignment ')' instr_bloc
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru '}' $@5 opt_lista_id . $@6 ';'
 
-    ID  shift, and go to state 42
+    $default  reduce using rule 23 ($@6)
 
-    lvalue      go to state 107
-    assignment  go to state 171
+    $@6  go to state 171
 
 
 State 168
 
-   10 declaratii_fnc_atomic: declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}' .
+   18 opt_lista_id: lista_id .
+   35 lista_id: lista_id . ',' ID lista_array
+   36         | lista_id . ',' ID lista_array ASSIGN expresie
 
-    $default  reduce using rule 10 (declaratii_fnc_atomic)
+    ','  shift, and go to state 84
+
+    $default  reduce using rule 18 (opt_lista_id)
 
 
 State 169
 
-   59 else_statement: ELSE instr_bloc .
+   17 lista_date_membru: lista_date_membru tip_date $@3 lista_id . ';'
+   35 lista_id: lista_id . ',' ID lista_array
+   36         | lista_id . ',' ID lista_array ASSIGN expresie
 
-    $default  reduce using rule 59 (else_statement)
+    ';'  shift, and go to state 172
+    ','  shift, and go to state 84
 
 
 State 170
 
-   61 do_while_statement: DO instr_bloc WHILE '(' boolean_expr ')' ';' .
+   66 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment ')' . instr_bloc
 
-    $default  reduce using rule 61 (do_while_statement)
+    ID      shift, and go to state 29
+    IF      shift, and go to state 31
+    WHILE   shift, and go to state 32
+    DO      shift, and go to state 33
+    FOR     shift, and go to state 34
+    TYPEOF  shift, and go to state 15
+    EVAL    shift, and go to state 35
+    '{'     shift, and go to state 63
+
+    typeof              go to state 36
+    instr_bloc          go to state 173
+    assignment          go to state 38
+    statement           go to state 65
+    control_statement   go to state 66
+    if_statement        go to state 41
+    while_statement     go to state 42
+    do_while_statement  go to state 43
+    for_statement       go to state 44
+    eval                go to state 45
 
 
 State 171
 
-   62 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment . ')' instr_bloc
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru '}' $@5 opt_lista_id $@6 . ';'
 
-    ')'  shift, and go to state 172
+    ';'  shift, and go to state 174
 
 
 State 172
 
-   62 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment ')' . instr_bloc
+   17 lista_date_membru: lista_date_membru tip_date $@3 lista_id ';' .
 
-    ID     shift, and go to state 42
-    IF     shift, and go to state 43
-    WHILE  shift, and go to state 44
-    DO     shift, and go to state 45
-    FOR    shift, and go to state 46
-    EVAL   shift, and go to state 47
-    '{'    shift, and go to state 72
-
-    instr_bloc          go to state 173
-    lvalue              go to state 49
-    assignment          go to state 50
-    statement           go to state 74
-    control_statement   go to state 75
-    if_statement        go to state 53
-    while_statement     go to state 54
-    do_while_statement  go to state 55
-    for_statement       go to state 56
-    eval                go to state 57
+    $default  reduce using rule 17 (lista_date_membru)
 
 
 State 173
 
-   62 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc .
+   66 for_statement: FOR '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc .
 
-    $default  reduce using rule 62 (for_statement)
+    $default  reduce using rule 66 (for_statement)
+
+
+State 174
+
+   24 declaratii_structuri_atomic: declaratii_structuri_atomic CLASS ID $@4 '{' lista_date_membru '}' $@5 opt_lista_id $@6 ';' .
+
+    $default  reduce using rule 24 (declaratii_structuri_atomic)

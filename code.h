@@ -8,7 +8,7 @@ struct list{
 	int nr_dimensiuni;
 };
 struct tabela_simboluri {
-	struct simbol entries[300];
+	struct simbol entries[100];
 	unsigned int nr_entries;
 };
 struct Tip_Date {
@@ -23,6 +23,14 @@ struct functie {
 	int nr_param;
 };
 struct tabela_functii {
-	struct functie entries[300];
+	struct functie entries[100];
 	unsigned int nr_entries;
 };
+struct UserDef {
+	char* nume;
+	struct tabela_simboluri* date;
+};
+static struct tabela_simboluri sy_table;
+static struct tabela_simboluri* sym_table = &sy_table;
+static struct tabela_functii   fn_table;
+static struct list userdef_table;
