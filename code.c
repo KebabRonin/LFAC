@@ -200,7 +200,7 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
     }
 }
 
-int get_typeof_variable(char* s)
+int get_typeof(char* s)
 {
     int i=0;
     for(i=0;i<sy_table.nr_entries;i++)
@@ -208,57 +208,60 @@ int get_typeof_variable(char* s)
         if(strcmp(s,sy_table.entries[i].nume)==0)
             break;
     }
-    if(strcmp(sy_table.entries[i].tip->tip,"int")==0)
+    if(i==sy_table.nr_entries)
     {
-        return 1;
+        int j=0;
+        for(j=0;j<fn_table.nr_entries;j++)
+        {
+            if(strcmp(s,fn_table.entries[j].name)==0)
+                break;
+        }
+        if(strcmp(fn_table.entries[j].return_type->tip,"int")==0)
+        {
+            return 1;
+        }
+        else if(strcmp(fn_table.entries[j].return_type->tip,"float")==0)
+        {
+            return 2;
+        }
+        else if(strcmp(fn_table.entries[j].return_type->tip,"char")==0)
+        {
+            return 3;
+        }
+        else if(strcmp(fn_table.entries[j].return_type->tip,"string")==0)
+        {
+            return 4;
+        }
+        else if(strcmp(fn_table.entries[j].return_type->tip,"bool")==0)
+        {
+            return 5;
+        }
     }
-    else if(strcmp(sy_table.entries[i].tip->tip,"float")==0)
+    else
     {
-        return 2;
-    }
-    else if(strcmp(sy_table.entries[i].tip->tip,"char")==0)
-    {
-        return 3;
-    }
-    else if(strcmp(sy_table.entries[i].tip->tip,"string")==0)
-    {
-        return 4;
-    }
-    else if(strcmp(sy_table.entries[i].tip->tip,"bool")==0)
-    {
-        return 5;
+        if(strcmp(sy_table.entries[i].tip->tip,"int")==0)
+        {
+            return 1;
+        }
+        else if(strcmp(sy_table.entries[i].tip->tip,"float")==0)
+        {
+            return 2;
+        }
+        else if(strcmp(sy_table.entries[i].tip->tip,"char")==0)
+        {
+            return 3;
+        }
+        else if(strcmp(sy_table.entries[i].tip->tip,"string")==0)
+        {
+            return 4;
+        }
+        else if(strcmp(sy_table.entries[i].tip->tip,"bool")==0)
+        {
+            return 5;
+        }
     }
 }
 
-int get_typeof_function(char* s)
-{
-    int i=0;
-    for(i=0;i<fn_table.nr_entries;i++)
-    {
-        if(strcmp(s,fn_table.entries[i].name)==0)
-            break;
-    }
-    if(strcmp(fn_table.entries[i].return_type->tip,"int")==0)
-    {
-        return 1;
-    }
-    else if(strcmp(fn_table.entries[i].return_type->tip,"float")==0)
-    {
-        return 2;
-    }
-    else if(strcmp(fn_table.entries[i].return_type->tip,"char")==0)
-    {
-        return 3;
-    }
-    else if(strcmp(fn_table.entries[i].return_type->tip,"string")==0)
-    {
-        return 4;
-    }
-    else if(strcmp(fn_table.entries[i].return_type->tip,"bool")==0)
-    {
-        return 5;
-    }
-}
 
 void export_sy_table() {
     int fd = open("symbol_table.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);

@@ -19,8 +19,13 @@ begin_progr
 	TypeOf('v');
 	Eval(a+3*b);
 	m = 3;
-	m=f(b,j,a);
+	m= f(b,j,a);
+	TypeOf(f(b,j,a));
 	if ( ( c != 2 or a == b and a > 2 ) ) {
 		a = true;
 	}
+	TypeOf(4);
+	TypeOf("Ana are mere");
+	TypeOf(1.5);
+	TypeOf(true);
 end_progr

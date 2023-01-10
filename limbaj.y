@@ -12,6 +12,11 @@ char parameters[100][100];
 int nr_parametri = 0;
 char* typeOf;
 char* nume_typeof;
+int is_char = 0;
+int is_string = 0;
+int is_int = 0;
+int is_float = 0;
+float f;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param);
@@ -89,28 +94,52 @@ tip_date : TIP {$$ = malloc(sizeof(struct Tip_Date)); $$->tip = strdup($1); $$->
 		 ;
 
 typeof : TYPEOF '(' expresie ')'{
-									printf("TypeOf('%c') : %s\n",nume_typeof,typeOf);
+									if(is_char==1)
+									{
+										printf("TypeOf('%c') : %s\n",nume_typeof,typeOf);
+										is_char=0;
+									}
+									else if(is_string==1)
+									{
+										printf("TypeOf(\"%s\") : %s\n",nume_typeof,typeOf);
+										is_string=0;
+									}
+									else if(is_int==1)
+									{
+										printf("TypeOf(%d) : %s\n",nume_typeof,typeOf);
+										is_int=0;
+									}
+									else if(is_float==1)
+									{
+										printf("TypeOf(%f) : %s\n",f,typeOf);
+										is_float=0;
+									}
+									else
+									{
+										printf("Am intrat aici\n");
+										printf("TypeOf(%s) : %s\n",nume_typeof,typeOf);
+									}
 	   							}
 	   | TYPEOF '(' ID ')' 	{
 								if(exists_variable($3)==1)
 								{
-									if(get_typeof_variable($3)==1)
+									if(get_typeof($3)==1)
 									{
 										printf("TypeOf(%s) : int\n",$3);
 									}
-									else if(get_typeof_variable($3)==2)
+									else if(get_typeof($3)==2)
 									{
 										printf("TypeOf(%s) : float\n",$3);
 									}
-									else if(get_typeof_variable($3)==3)
+									else if(get_typeof($3)==3)
 									{
 										printf("TypeOf(%s) : char\n",$3);
 									}
-									else if(get_typeof_variable($3)==4)
+									else if(get_typeof($3)==4)
 									{
 										printf("TypeOf(%s) : string\n",$3);
 									}
-									else if(get_typeof_variable($3)==5)
+									else if(get_typeof($3)==5)
 									{
 										printf("TypeOf(%s) : bool\n",$3);
 									}
@@ -340,16 +369,37 @@ expresie: expresie '+' expresie  {}
  | expresie '-' expresie {}
  | expresie '/' expresie {}
  | '(' expresie ')' {}
- | NR {printf("Nr : |%d|\n",$1);}
- | STRING {printf("Str : |%s|\n",$1);}
- | FLOAT {printf("Float : |%f|\n",$1);}
+ | NR 	{	
+ 			nume_typeof = $1;
+			typeOf = "int";
+			is_int=1;
+		}
+ | STRING 	{
+				nume_typeof = $1;
+				typeOf = "string";
+				is_string=1;
+			}
+ | FLOAT 	{
+				f = $1;
+				typeOf = "float";
+				is_float=1;
+			}
  | CHAR {
-			printf("Char : |%c|\n",$1);
 			nume_typeof = $1;
 			typeOf = "char";
-			printf("nume_typeof = %c, typeof = %s\n",nume_typeof,typeOf);
+			is_char=1;
  		}
- | BOOL {printf("Bool : |%d|\n",$1);}
+ | BOOL {
+			if($1 == 1)
+			{
+				nume_typeof = "true";
+			}
+			else
+			{
+				nume_typeof = "false";
+			}
+			typeOf = "bool";
+		}
  | ID 	{
 			if(exists_variable($1)==1)
 			{
@@ -383,23 +433,24 @@ expresie: expresie '+' expresie  {}
 									{
 										printf("%s function is called correctly.\n",$1);
 										nume_typeof = $1;
-										if(get_typeof_function(nume_typeof)==1)
+										is_char = 0;is_string = 0;is_int = 0;is_float = 0;
+										if(get_typeof($1)==1)
 										{
 											typeOf = "int";
 										}
-										else if(get_typeof_function(nume_typeof)==2)
+										else if(get_typeof($1)==2)
 										{
 											typeOf = "float";
 										}
-										else if(get_typeof_function(nume_typeof)==3)
+										else if(get_typeof($1)==3)
 										{
 											typeOf = "char";
 										}
-										else if(get_typeof_function(nume_typeof)==4)
+										else if(get_typeof($1)==4)
 										{
 											typeOf = "string";
 										}
-										else if(get_typeof_function(nume_typeof)==5)
+										else if(get_typeof($1)==5)
 										{
 											typeOf = "bool";
 										}
@@ -425,23 +476,23 @@ expresie: expresie '+' expresie  {}
 					{
 						printf("%s function is called correctly.\n",$1);
 						nume_typeof = $1;
-						if(get_typeof_function(nume_typeof)==1)
+						if(get_typeof(nume_typeof)==1)
 						{
 							typeOf = "int";
 						}
-						else if(get_typeof_function(nume_typeof)==2)
+						else if(get_typeof(nume_typeof)==2)
 						{
 							typeOf = "float";
 						}
-						else if(get_typeof_function(nume_typeof)==3)
+						else if(get_typeof(nume_typeof)==3)
 						{
 							typeOf = "char";
 						}
-						else if(get_typeof_function(nume_typeof)==4)
+						else if(get_typeof(nume_typeof)==4)
 						{
 							typeOf = "string";
 						}
-						else if(get_typeof_function(nume_typeof)==5)
+						else if(get_typeof(nume_typeof)==5)
 						{
 							typeOf = "bool";
 						}
