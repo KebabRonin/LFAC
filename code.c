@@ -14,7 +14,11 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
     {
         if(strcmp(sy_table.entries[i].nume,nume)==0)
         {
-            yyerror("Variable already declared.");
+            char* error[100];
+            strcpy(error,"There already exists a variable called \"");
+            strcat(error,nume);
+            strcat(error, "\".");
+            yyerror(strdup(error));
             exit(0);
         }
     }
@@ -26,7 +30,6 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 	newentry.tip->is_const = is_const;
     if(matrix==NULL)
     {
-        printf("Matrix null\n");
         newentry.tip->size= malloc(sizeof(struct list));
         newentry.tip->size->nr_dimensiuni = 0;
     }
@@ -77,7 +80,6 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 	}
 	sy_table.entries[sy_table.nr_entries++] = newentry;
 }
-
 void verify_expresie(int tipuri_expresii[100],int nr_expresii)
 {
     int i=0;
@@ -88,12 +90,11 @@ void verify_expresie(int tipuri_expresii[100],int nr_expresii)
         if(tipuri_expresii[i] != primul)
         {
             printf("tipul primului = %d\ntipul urmatorului = %d\n",primul,tipuri_expresii[i]);
-            yyerror("Types don't match in the right side");
+            yyerror("Operands in the right side don't have the same type.");
             exit(0);
         }
     }
 }
-
 void verify_assignement(char* leftvalue, int tipuri_expresii[100],int nr_expresii)
 {
     int i=0;
@@ -103,7 +104,7 @@ void verify_assignement(char* leftvalue, int tipuri_expresii[100],int nr_expresi
         if(tipuri_expresii[i] != primul)
         {
             printf("tipul lvalue = %d,\ntipul rvalue = %d\n",get_typeof(leftvalue),primul);
-            yyerror("Types don't match in the right side");
+            yyerror("Operands in the right side don't have the same type.");
             exit(0);
         }
     }
@@ -114,7 +115,6 @@ void verify_assignement(char* leftvalue, int tipuri_expresii[100],int nr_expresi
         exit(0);
     }
 }
-
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) 
 {
 
@@ -123,7 +123,11 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param)
     {
         if(strcmp(sy_table.entries[j].nume,nume)==0)
         {
-            yyerror("There already exists a variable with that name.\n");
+            char* error[100];
+            strcpy(error,"There already exists a variable called \"");
+            strcat(error,nume);
+            strcat(error, "\".");
+            yyerror(strdup(error));
             exit(0);
         }
     }
@@ -132,7 +136,11 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param)
     {
         if(strcmp(fn_table.entries[k].name,nume)==0)
         {
-            yyerror("There already exists a function with that name.\n");
+            char* error[100];
+            strcpy(error,"There already exists a function called \"");
+            strcat(error,nume);
+            strcat(error, "\".");
+            yyerror(strdup(error));
             exit(0);
         }
     }
@@ -158,8 +166,6 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param)
     
 	fn_table.entries[fn_table.nr_entries++] = newentry;
 }
-
-
 int exists_variable(char *s)
 {
     int i=0;
@@ -170,7 +176,6 @@ int exists_variable(char *s)
     }
     return 0;
 }
-
 int exists_function(char *s)
 {
     int i=0;
@@ -181,8 +186,6 @@ int exists_function(char *s)
     }
     return 0;
 }
-
-
 int verify_no_parameters(char* s)
 {
     int i=0;
@@ -208,8 +211,19 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
     int k=i;
     if(nr_parametri != fn_table.entries[i].nr_param)
     {
-        yyerror("Argument type doesn't match.");
-	    exit(0);
+        char error[100];
+        char aux[100];
+        strcpy(error,"The number of parameters of function \"");
+        strcat(error,s);
+        strcat(error, "\" is ");
+        sprintf(aux,"%d",nr_parametri);
+        strcat(error,aux);
+        strcat(error, ", when it should be ");
+        sprintf(aux,"%d",fn_table.entries[i].nr_param);
+        strcat(error,aux);
+        strcat(error, ".");
+        yyerror(strdup(error));
+        exit(0);
     }
     int j=0;
     for(j=0;j<nr_parametri;j++)
@@ -224,13 +238,20 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
         }
         if(strcmp(parameters[j],fn_table.entries[k].param[j]->tip->tip)!=0)
         {
-            printf("Parameter type is %s when it should be %s\n",parameters[j],fn_table.entries[k].param[j]->tip->tip);
-            yyerror("Argument type doesn't match.");
-			exit(0);
+            char error[100];
+            char aux[100];
+            strcpy(error,"Parameter type of function \"");
+            strcat(error,s);
+            strcat(error, "\" is ");
+            strcat(error,parameters[j]);
+            strcat(error, ", when it should be ");
+            strcat(error,fn_table.entries[k].param[j]->tip->tip);
+            strcat(error, ".");
+            yyerror(strdup(error));
+            exit(0);
         }
     }
 }
-
 int get_typeof(char* s)
 {
     int i=0;
@@ -292,8 +313,6 @@ int get_typeof(char* s)
         }
     }
 }
-
-
 void export_sy_table() {
     int fd = open("symbol_table.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);
     if (fd < 0) {
@@ -320,7 +339,6 @@ void export_sy_table() {
     }
     close(fd);
 }
-
 void export_fn_table() 
 {
     int fd = open("symbol_table_functions.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);

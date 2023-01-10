@@ -1760,7 +1760,7 @@ yyreduce:
 												char* error[100];
 												strcpy(error,"Function \"");
 												strcat(error,(yyvsp[-3].strval));
-												strcat(error, "\" is not declared with any parameters.");
+												strcat(error, "\" isn't supposed to have parameters.");
 												yyerror(strdup(error));
 												exit(0);
 											}
@@ -1792,7 +1792,7 @@ yyreduce:
 									char* error[100];
 									strcpy(error,"Function \"");
 									strcat(error,(yyvsp[-2].strval));
-									strcat(error, "\" is not declared with any parameters.");
+									strcat(error, "\" isn't supposed to have parameters.");
 									yyerror(strdup(error));
 									exit(0);
 								}
@@ -2023,7 +2023,7 @@ yyreduce:
 										char* error[100];
 										strcpy(error,"Function \"");
 										strcat(error,(yyvsp[-3].strval));
-										strcat(error, "\" is not declared with any parameters.");
+										strcat(error, "\" isn't supposed to have parameters.");
 										yyerror(strdup(error));
 										exit(0);
 									}
@@ -2110,7 +2110,7 @@ yyreduce:
 						char* error[100];
 						strcpy(error,"Function \"");
 						strcat(error,(yyvsp[-2].strval));
-						strcat(error, "\" is not declared with any parameters.");
+						strcat(error, "\" isn't supposed to have parameters.");
 						yyerror(strdup(error));
 						exit(0);
 					}

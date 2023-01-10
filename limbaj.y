@@ -237,7 +237,7 @@ statement : assignment
 												char* error[100];
 												strcpy(error,"Function \"");
 												strcat(error,$1);
-												strcat(error, "\" is not declared with any parameters.");
+												strcat(error, "\" isn't supposed to have parameters.");
 												yyerror(strdup(error));
 												exit(0);
 											}
@@ -264,7 +264,7 @@ statement : assignment
 									char* error[100];
 									strcpy(error,"Function \"");
 									strcat(error,$1);
-									strcat(error, "\" is not declared with any parameters.");
+									strcat(error, "\" isn't supposed to have parameters.");
 									yyerror(strdup(error));
 									exit(0);
 								}
@@ -453,7 +453,7 @@ expresie: expresie '+' expresie  	{
 										char* error[100];
 										strcpy(error,"Function \"");
 										strcat(error,$1);
-										strcat(error, "\" is not declared with any parameters.");
+										strcat(error, "\" isn't supposed to have parameters.");
 										yyerror(strdup(error));
 										exit(0);
 									}
@@ -535,7 +535,7 @@ expresie: expresie '+' expresie  	{
 						char* error[100];
 						strcpy(error,"Function \"");
 						strcat(error,$1);
-						strcat(error, "\" is not declared with any parameters.");
+						strcat(error, "\" isn't supposed to have parameters.");
 						yyerror(strdup(error));
 						exit(0);
 					}
