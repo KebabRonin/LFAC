@@ -107,7 +107,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 31 "limbaj.y"
+#line 32 "limbaj.y"
 
 int intval;
 char* strval;
@@ -116,8 +116,9 @@ float floatval;
 struct Tip_Date* tipD;
 struct list* ls;
 struct simbol* symbol;
+struct AstNode* ast;
 
-#line 121 "y.tab.h"
+#line 122 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

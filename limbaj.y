@@ -9,6 +9,7 @@ int yydebug=1;
 
 struct Tip_Date* now_declaring = NULL;
 char parameters[100][100];
+char structNames[100][100];
 int nr_parametri = 0;
 char* typeOf;
 char* nume_typeof;
@@ -36,10 +37,12 @@ float floatval;
 struct Tip_Date* tipD;
 struct list* ls;
 struct simbol* symbol;
+struct AstNode* ast;
 }
 %type <ls>lista_array lista_param lista_param_non_void
 %type <tipD>tip_date
-%type <symbol>param
+%type <symbol>param 
+%type <ast>expresie
 %token <strval>ID <strval>TIP ASSIGN <intval>NR CMP_OP CLASS <strval>STRING <floatval>FLOAT <charval>CHAR <intval>BOOL
 %token BGIN END CONST IF WHILE DO ELSE FOR BOOLAND BOOLOR TYPEOF EVAL GLOBDEF FNCDEF STRUCTDEF
 %start progr
@@ -92,6 +95,7 @@ declaratii_structuri_atomic : /*epsilon*/
 					 | declaratii_structuri_atomic CLASS ID  {
 					userdef_table.dimensiune[userdef_table.nr_dimensiuni] = (char*) (malloc(sizeof(struct UserDef))); 
 					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->nume = strdup($3);
+					strcpy(structNames[userdef_table.nr_dimensiuni], $3);
 					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date = malloc(sizeof(struct tabela_simboluri));
 					make_sym_table((((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date));
 					userdef_table.nr_dimensiuni++;
@@ -370,7 +374,7 @@ param_apel : ID {
       	   ;
 
 
-eval : EVAL '(' expresie ')'
+eval : EVAL '(' expresie ')' {	int rez = EvalAST($3); printf("Eval result : %d\n",rez); freeAST($3);}
 	 ;
 
 expresie: expresie '+' expresie  	{
@@ -396,6 +400,8 @@ expresie: expresie '+' expresie  	{
 			is_int=1;
 			tipuri_expresii[nr_expresii] = 1;
 			nr_expresii++;
+			int a = $1;
+			$$ = buildAST(&a, 0, 0, INT);
 		}
  | STRING 	{
 				nume_typeof = $1;
@@ -455,6 +461,9 @@ expresie: expresie '+' expresie  	{
 				else if(get_typeof($1)==5)
 				{
 					typeOf = "bool";
+				}
+				else {
+					typeOf = structNames[get_typeof($1)-6];
 				}
 				tipuri_expresii[nr_expresii] = get_typeof($1);
 				strcpy(elemente_expresie[nr_elemente_expresie],$1);

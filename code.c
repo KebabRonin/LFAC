@@ -10,7 +10,6 @@ void make_sym_table(struct tabela_simboluri* p) {
 }
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix) 
 {
-	
     int i=0;
     for(i=0;i< sym_table->nr_entries; i++)
     {
@@ -96,6 +95,9 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
             newentry.valoare = strdup("");
 		
 	}
+    else {
+        newentry.valoare = 0;
+    }
 	sym_table->entries[sym_table->nr_entries++] = newentry;
 }
 void verify_expresie(int tipuri_expresii[100],int nr_expresii)
@@ -348,6 +350,14 @@ int get_typeof(char* s)
         {
             return 5;
         }
+        else {
+            int k = 0;
+            for(k = 0; k < userdef_table.nr_dimensiuni; k++) {
+                if(strcmp(((struct UserDef*)(userdef_table.dimensiune[k]))->nume, sy_table.entries[i].tip->tip) == 0) {
+                    return k + 6;
+                }
+            }
+        }
     }
 }
 void export_sy_table() {
@@ -425,4 +435,64 @@ void export_fn_table()
         }
     }
     close(fd);
+}
+struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right, int type) {
+    struct AstNode* self = malloc(sizeof(struct AstNode));
+    self->Left = left; self->Right = right;
+    self->tip = type;
+    if(type == INT) {
+        self->valoare = *((int*)root);
+    }
+    else if(type == OP) {
+        self->valoare = *((char*)root);
+    }
+    else if(type == IDENTIFIER) {
+        int i=0;
+        for(i=0;i<sym_table->nr_entries;i++)
+        {
+            if(strcmp(root,sym_table->entries[i].nume)==0) {
+                self->valoare = i;
+                break;
+            }
+        }
+        if(i == sym_table->nr_entries) {
+            printf("EvalERROR: Variable not found\n");
+            exit(1);
+        }
+    }
+    return self;
+}
+void freeAST(struct AstNode* self) {
+    if (self->Left != 0) {
+        freeAST(self->Left);
+    }
+    if (self->Left != 0) {
+        freeAST(self->Right);
+    }
+    //?free(tip);
+    free(self);
+}
+int EvalAST(struct AstNode* root) {
+    if(root->tip == INT) {
+        return root->valoare;
+    }
+    else if (root->tip == OP) {
+        switch (root->valoare)
+        {
+        case '+':
+            return EvalAST(root->Left) + EvalAST(root->Right);
+        case '-':
+            return EvalAST(root->Left) - EvalAST(root->Right);
+        case '*':
+            return EvalAST(root->Left) * EvalAST(root->Right);
+        case '/':
+            return EvalAST(root->Left) / EvalAST(root->Right);
+        default:
+            printf("Unknown operator\n");
+            return 0;
+        }
+    }
+    else if (root->tip == IDENTIFIER) {
+        ;// caut in sy_table pt identifier si returnez valoarea
+    }
 }

@@ -16,8 +16,7 @@ struct Mystruct {int fd;}fd;
 
 
 begin_progr
-	TypeOf(b[1]);
-	TypeOf(o + f(b,j,a) + (5/2));
+	Eval(3);
 	m = 3;
 	m = g();
 	if ( ( c[2] != 2.4 or a == c[0] and a > 2.3 ) ) {
