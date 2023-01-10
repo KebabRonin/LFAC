@@ -21,7 +21,6 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 
     struct simbol newentry;
     newentry.tip = malloc(sizeof(struct Tip_Date));
-    printf("Entered new entry\n");
 	newentry.nume = strdup(nume);
 	newentry.tip->tip = strdup(tip);
 	newentry.tip->is_const = is_const;
@@ -79,6 +78,42 @@ void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct lis
 	sy_table.entries[sy_table.nr_entries++] = newentry;
 }
 
+void verify_expresie(int tipuri_expresii[100],int nr_expresii)
+{
+    int i=0;
+    int primul = tipuri_expresii[0];
+    
+    for(i=1;i<nr_expresii;i++)
+    {
+        if(tipuri_expresii[i] != primul)
+        {
+            printf("tipul primului = %d,\ntipul urmatorului = %d\n",primul,tipuri_expresii[i]);
+            yyerror("Types don't match in the right side");
+            exit(0);
+        }
+    }
+}
+
+void verify_assignement(char* leftvalue, int tipuri_expresii[100],int nr_expresii)
+{
+    int i=0;
+    int primul = tipuri_expresii[0];
+    for(i=1;i<nr_expresii;i++)
+    {
+        if(tipuri_expresii[i] != primul)
+        {
+            printf("tipul lvalue = %d,\ntipul rvalue = %d\n",get_typeof(leftvalue),primul);
+            yyerror("Types don't match in the right side");
+            exit(0);
+        }
+    }
+    if(get_typeof(leftvalue) != primul)
+    {
+        printf("tipul lvalue = %d,\ntipul rvalue = %d\n",get_typeof(leftvalue),primul);
+        yyerror("The left side and the right side don't have the same type.");
+        exit(0);
+    }
+}
 
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param) 
 {
@@ -105,9 +140,7 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param)
 
 	struct functie newentry;
     newentry.return_type = ret;
-    printf("%p\n", newentry.return_type);
     newentry.name = strdup(nume);
-    printf("Entered new FN entry\n");
 	//newentry.return_type = ret;
     //memcpy(newentry.return_type, ret, sizeof(struct Tip_Date)); cu malloc!!
 
@@ -173,7 +206,6 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
             break;
     }
     int k=i;
-    printf("nr parametri = %d, nr parametri ceruti = %d\n",nr_parametri,fn_table.entries[i].nr_param);
     if(nr_parametri != fn_table.entries[i].nr_param)
     {
         yyerror("Argument type doesn't match.");
@@ -182,7 +214,6 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
     int j=0;
     for(j=0;j<nr_parametri;j++)
     {
-        printf("Verificam parametrul %d : %s\n", j, parameters[j]);
         for(i=0;i<sy_table.nr_entries;i++)
         {
             if(strcmp(parameters[j],sy_table.entries[i].nume)==0)
@@ -193,7 +224,7 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
         }
         if(strcmp(parameters[j],fn_table.entries[k].param[j]->tip->tip)!=0)
         {
-            printf("tipul parametrului = %s, tipul cerut = %s\n",parameters[j],fn_table.entries[k].param[j]->tip->tip);
+            printf("Parameter type is %s when it should be %s\n",parameters[j],fn_table.entries[k].param[j]->tip->tip);
             yyerror("Argument type doesn't match.");
 			exit(0);
         }
@@ -283,7 +314,6 @@ void export_sy_table() {
                                         sy_table.entries[i].tip->tip, 
                                         sy_table.entries[i].tip->is_const,
                                         size);
-        //printf("%s\n",entry);
         if ( 0 > write(fd, entry, strlen(entry))) {
             perror("write");
         }

@@ -107,7 +107,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 27 "limbaj.y"
+#line 29 "limbaj.y"
 
 int intval;
 char* strval;

@@ -17,6 +17,8 @@ int is_string = 0;
 int is_int = 0;
 int is_float = 0;
 float f;
+int tipuri_expresii[100];
+int nr_expresii = 0;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param);
@@ -116,44 +118,9 @@ typeof : TYPEOF '(' expresie ')'{
 									}
 									else
 									{
-										printf("Am intrat aici\n");
 										printf("TypeOf(%s) : %s\n",nume_typeof,typeOf);
 									}
 	   							}
-	   | TYPEOF '(' ID ')' 	{
-								if(exists_variable($3)==1)
-								{
-									if(get_typeof($3)==1)
-									{
-										printf("TypeOf(%s) : int\n",$3);
-									}
-									else if(get_typeof($3)==2)
-									{
-										printf("TypeOf(%s) : float\n",$3);
-									}
-									else if(get_typeof($3)==3)
-									{
-										printf("TypeOf(%s) : char\n",$3);
-									}
-									else if(get_typeof($3)==4)
-									{
-										printf("TypeOf(%s) : string\n",$3);
-									}
-									else if(get_typeof($3)==5)
-									{
-										printf("TypeOf(%s) : bool\n",$3);
-									}
-								}
-								else
-								{
-									char* error[100];
-									strcpy(error,"Variable \"");
-									strcat(error,$3);
-									strcat(error, "\" is not declared.");
-									yyerror(strdup(error));
-									exit(0);
-								}
-							}
        ;
 
 lista_array : /*epsilon*/ {$$ = malloc(sizeof(struct list)); $$->nr_dimensiuni=0;}
@@ -170,19 +137,19 @@ lista_array : /*epsilon*/ {$$ = malloc(sizeof(struct list)); $$->nr_dimensiuni=0
 			;
 
 lista_id : ID lista_array {
-				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2->nr_dimensiuni);
+				// printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2->nr_dimensiuni);
 				new_entry_sy($1, now_declaring->is_const, now_declaring->tip, 0, $2);
 			}
 		 | ID lista_array ASSIGN expresie {
-				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2->nr_dimensiuni);
+				// printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $1, $2->nr_dimensiuni);
 				new_entry_sy($1, now_declaring->is_const, now_declaring->tip, /*$4*/0, $2);
 			}
 		 | lista_id ',' ID lista_array {
-			printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4->nr_dimensiuni);
+			// printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4->nr_dimensiuni);
 			new_entry_sy($3, now_declaring->is_const, now_declaring->tip, 0, $4);
 			}
 		 | lista_id ',' ID lista_array ASSIGN expresie {
-				printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4->nr_dimensiuni);
+				// printf("list_id :%s %d %s howmany:%d\n", now_declaring->tip, now_declaring->is_const, $3, $4->nr_dimensiuni);
 				new_entry_sy($3, now_declaring->is_const, now_declaring->tip, /*$6*/0, $4);
 			}
 		 ;
@@ -204,9 +171,8 @@ param : tip_date ID lista_array {
 									$$->valoare = 0;
 								}
       ;
-
-/* bloc */
 bloc : BGIN list END
+	 | BGIN END
      ;
 
 instr_bloc : statement
@@ -214,7 +180,7 @@ instr_bloc : statement
 		   ;
 
 /* lista instructiuni */
-list :  statement ';'
+list : statement ';'
 	 | control_statement
 	 | list control_statement
      | list statement ';'
@@ -222,11 +188,7 @@ list :  statement ';'
 
 
 assignment : ID ASSIGN expresie {
-									if(exists_variable($1)==1)
-									{
-										printf("%s variable exists.\n",$1);
-									}
-									else
+									if(exists_variable($1)!=1)
 									{
 										char* error[100];
 										strcpy(error,"Variable \"");
@@ -235,6 +197,9 @@ assignment : ID ASSIGN expresie {
 										yyerror(strdup(error));
 										exit(0);
 									}
+									verify_assignement($1,tipuri_expresii,nr_expresii);
+									nr_expresii=0;
+									memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
 								}
 		   ;
 
@@ -327,13 +292,17 @@ do_while_statement : DO instr_bloc WHILE '(' boolean_expr ')' ';'
 for_statement : FOR '(' assignment ';' boolean_expr ';' assignment ')' instr_bloc
               ;
 
-boolean_expr_atomic : expresie CMP_OP expresie {printf("if\n");}
+boolean_expr_atomic : expresie CMP_OP expresie {}
 					;
 
 boolean_expr : '(' boolean_expr ')'
 			 | boolean_expr BOOLAND boolean_expr
 			 | boolean_expr BOOLOR boolean_expr
-			 | boolean_expr_atomic
+			 | boolean_expr_atomic 	{
+										verify_expresie(tipuri_expresii,nr_expresii);
+										nr_expresii=0;
+										memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+			 						}
 			 ;
 
 
@@ -344,7 +313,6 @@ lista_apel : param_apel {}
 param_apel : ID {
 					if(exists_variable($1)==1)
 					{
-						printf("%s variable exists.\n",$1);
 						strcpy(parameters[nr_parametri],$1);
 						nr_parametri++;
 					}
@@ -373,21 +341,29 @@ expresie: expresie '+' expresie  {}
  			nume_typeof = $1;
 			typeOf = "int";
 			is_int=1;
+			tipuri_expresii[nr_expresii] = 1;
+			nr_expresii++;
 		}
  | STRING 	{
 				nume_typeof = $1;
 				typeOf = "string";
 				is_string=1;
+				tipuri_expresii[nr_expresii] = 4;
+				nr_expresii++;
 			}
  | FLOAT 	{
 				f = $1;
 				typeOf = "float";
 				is_float=1;
+				tipuri_expresii[nr_expresii] = 2;
+				nr_expresii++;
 			}
  | CHAR {
 			nume_typeof = $1;
 			typeOf = "char";
 			is_char=1;
+			tipuri_expresii[nr_expresii] = 3;
+			nr_expresii++;
  		}
  | BOOL {
 			if($1 == 1)
@@ -399,11 +375,35 @@ expresie: expresie '+' expresie  {}
 				nume_typeof = "false";
 			}
 			typeOf = "bool";
+			tipuri_expresii[nr_expresii] = 5;
+			nr_expresii++;
 		}
  | ID 	{
 			if(exists_variable($1)==1)
 			{
-				printf("%s variable exists.\n",$1);
+				nume_typeof = $1;
+				if(get_typeof($1)==1)
+				{
+					typeOf = "int";
+				}
+				else if(get_typeof($1)==2)
+				{
+					typeOf = "float";
+				}
+				else if(get_typeof($1)==3)
+				{
+					typeOf = "char";
+				}
+				else if(get_typeof($1)==4)
+				{
+					typeOf = "string";
+				}
+				else if(get_typeof($1)==5)
+				{
+					typeOf = "bool";
+				}
+				tipuri_expresii[nr_expresii] = get_typeof($1);
+				nr_expresii++;
 			}
 			else
 			{
@@ -418,7 +418,6 @@ expresie: expresie '+' expresie  {}
  | ID '(' lista_apel ')' 	{
 								if(exists_function($1)==1)
 								{
-									printf("%s function exists.\n",$1);
 									verify_parameters($1,parameters,nr_parametri);
 									if(verify_no_parameters($1)==1)
 									{
@@ -454,6 +453,8 @@ expresie: expresie '+' expresie  {}
 										{
 											typeOf = "bool";
 										}
+										tipuri_expresii[nr_expresii] = get_typeof($1);
+										nr_expresii++;
 									}
 									nr_parametri=0;
 								}
@@ -470,7 +471,6 @@ expresie: expresie '+' expresie  {}
  | ID '('')'	{
 				if(exists_function($1)==1)
 				{
-					printf("%s function exists.\n",$1);
 					verify_parameters($1,parameters,nr_parametri);
 					if(verify_no_parameters($1)==1)
 					{
@@ -496,6 +496,8 @@ expresie: expresie '+' expresie  {}
 						{
 							typeOf = "bool";
 						}
+						tipuri_expresii[nr_expresii] = get_typeof($1);
+						nr_expresii++;
 					}
 					else
 					{

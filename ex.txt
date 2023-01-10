@@ -16,16 +16,10 @@ struct Mystruct {}
 
 begin_progr
 
-	TypeOf('v');
-	Eval(a+3*b);
 	m = 3;
-	m= f(b,j,a);
-	TypeOf(f(b,j,a));
-	if ( ( c != 2 or a == b and a > 2 ) ) {
-		a = true;
+	m = g();
+	if ( ( c != 2.4 or a == c and a > 2.3 ) ) {
+		m=3.4;
 	}
-	TypeOf(4);
-	TypeOf("Ana are mere");
-	TypeOf(1.5);
-	TypeOf(true);
+	
 end_progr
