@@ -54,7 +54,7 @@ progr: declaratii_globale declaratii_fnc declaratii_structuri bloc {printf("prog
 	 ;
 
 declaratii_globale : /*epsilon*/
-				   | GLOBDEF { sym_table = &sy_table; } declaratii_globale_atomic {export_sy_table();}
+				   | GLOBDEF { make_sym_table(0); } declaratii_globale_atomic {export_sy_table();}
 				   ;
 
 declaratii_globale_atomic : /*epsilon*/
@@ -93,13 +93,13 @@ declaratii_structuri_atomic : /*epsilon*/
 					userdef_table.dimensiune[userdef_table.nr_dimensiuni] = (char*) (malloc(sizeof(struct UserDef))); 
 					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->nume = strdup($3);
 					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date = malloc(sizeof(struct tabela_simboluri));
-					sym_table = (((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date);
+					make_sym_table((((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date));
 					userdef_table.nr_dimensiuni++;
 					} '{' lista_date_membru '}' {
 						now_declaring = malloc(sizeof(struct Tip_Date));
 						now_declaring->is_const = 0;
 						now_declaring->tip = strdup($3);
-						sym_table = &sy_table;
+						make_sym_table(0);
 					} opt_lista_id {
 						now_declaring->is_const = 0;
 						free(now_declaring->tip);

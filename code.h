@@ -31,6 +31,6 @@ struct UserDef {
 	struct tabela_simboluri* date;
 };
 static struct tabela_simboluri sy_table;
-static struct tabela_simboluri* sym_table = &sy_table;
+static struct tabela_simboluri* sym_table;
 static struct tabela_functii   fn_table;
 static struct list userdef_table;

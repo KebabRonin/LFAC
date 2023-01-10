@@ -3,6 +3,11 @@
 #include <stddef.h>
 #include "code.h"
 
+
+void make_sym_table(struct tabela_simboluri* p) {
+    if(p == 0) sym_table = &sy_table;
+    else sym_table = p;
+}
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix) 
 {
 	

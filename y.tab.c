@@ -1525,13 +1525,13 @@ yyreduce:
 
   case 4:
 #line 57 "limbaj.y"
-                                             { sym_table = &sy_table; }
+                                             { make_sym_table(0); }
 #line 1530 "y.tab.c"
     break;
 
   case 5:
 #line 57 "limbaj.y"
-                                                                                                  {export_sy_table();}
+                                                                                              {export_sy_table();}
 #line 1536 "y.tab.c"
     break;
 
@@ -1577,7 +1577,7 @@ yyreduce:
 					userdef_table.dimensiune[userdef_table.nr_dimensiuni] = (char*) (malloc(sizeof(struct UserDef))); 
 					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->nume = strdup((yyvsp[0].strval));
 					((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date = malloc(sizeof(struct tabela_simboluri));
-					sym_table = (((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date);
+					make_sym_table((((struct UserDef*)(userdef_table.dimensiune[userdef_table.nr_dimensiuni]))->date));
 					userdef_table.nr_dimensiuni++;
 					}
 #line 1584 "y.tab.c"
@@ -1589,7 +1589,7 @@ yyreduce:
 						now_declaring = malloc(sizeof(struct Tip_Date));
 						now_declaring->is_const = 0;
 						now_declaring->tip = strdup((yyvsp[-4].strval));
-						sym_table = &sy_table;
+						make_sym_table(0);
 					}
 #line 1595 "y.tab.c"
     break;

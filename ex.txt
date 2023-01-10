@@ -12,7 +12,7 @@ int g();
 
 _userdef
 
-struct Mystruct {int fd;}fsdada;
+struct Mystruct {int fd;}fd;
 
 
 begin_progr
