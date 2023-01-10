@@ -166,20 +166,19 @@ int verify_no_parameters(char* s)
 }
 void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
 {
-    printf("nr parametri = %d, nr parametri ceruti = %d\n",nr_parametri,fn_table.entries->nr_param);
-    if(nr_parametri != fn_table.entries->nr_param)
-    {
-        yyerror("Argument type doesn't match.");
-	    exit(0);
-    }
     int i=0;
-    for(i=0;i<nr_parametri;i++)
+    for(i=0;i<fn_table.nr_entries;i++)
     {
         if(strcmp(s,fn_table.entries[i].name)==0)
             break;
     }
     int k=i;
-    
+    printf("nr parametri = %d, nr parametri ceruti = %d\n",nr_parametri,fn_table.entries[i].nr_param);
+    if(nr_parametri != fn_table.entries[i].nr_param)
+    {
+        yyerror("Argument type doesn't match.");
+	    exit(0);
+    }
     int j=0;
     for(j=0;j<nr_parametri;j++)
     {
@@ -201,6 +200,65 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
     }
 }
 
+int get_typeof_variable(char* s)
+{
+    int i=0;
+    for(i=0;i<sy_table.nr_entries;i++)
+    {
+        if(strcmp(s,sy_table.entries[i].nume)==0)
+            break;
+    }
+    if(strcmp(sy_table.entries[i].tip->tip,"int")==0)
+    {
+        return 1;
+    }
+    else if(strcmp(sy_table.entries[i].tip->tip,"float")==0)
+    {
+        return 2;
+    }
+    else if(strcmp(sy_table.entries[i].tip->tip,"char")==0)
+    {
+        return 3;
+    }
+    else if(strcmp(sy_table.entries[i].tip->tip,"string")==0)
+    {
+        return 4;
+    }
+    else if(strcmp(sy_table.entries[i].tip->tip,"bool")==0)
+    {
+        return 5;
+    }
+}
+
+int get_typeof_function(char* s)
+{
+    int i=0;
+    for(i=0;i<fn_table.nr_entries;i++)
+    {
+        if(strcmp(s,fn_table.entries[i].name)==0)
+            break;
+    }
+    if(strcmp(fn_table.entries[i].return_type->tip,"int")==0)
+    {
+        return 1;
+    }
+    else if(strcmp(fn_table.entries[i].return_type->tip,"float")==0)
+    {
+        return 2;
+    }
+    else if(strcmp(fn_table.entries[i].return_type->tip,"char")==0)
+    {
+        return 3;
+    }
+    else if(strcmp(fn_table.entries[i].return_type->tip,"string")==0)
+    {
+        return 4;
+    }
+    else if(strcmp(fn_table.entries[i].return_type->tip,"bool")==0)
+    {
+        return 5;
+    }
+}
 
 void export_sy_table() {
     int fd = open("symbol_table.txt", O_CREAT | O_TRUNC | O_WRONLY, 0750);

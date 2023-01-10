@@ -10,6 +10,8 @@ int yydebug=1;
 struct Tip_Date* now_declaring = NULL;
 char parameters[100][100];
 int nr_parametri = 0;
+int typeOf;
+char* nume_typeof;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param);
@@ -86,14 +88,78 @@ tip_date : TIP {$$ = malloc(sizeof(struct Tip_Date)); $$->tip = strdup($1); $$->
 		 | typeof {$$ = NULL;}
 		 ;
 
-typeof : TYPEOF '(' ID ')'
-	   | TYPEOF '(' TIP ')'
-	   | TYPEOF '(' NR ')'
-	   | TYPEOF '(' BOOL ')'
-	   | TYPEOF '(' STRING ')'
-	   | TYPEOF '(' CHAR ')'
-	   | TYPEOF '(' FLOAT ')'
-	   ;
+typeof : TYPEOF '(' ID ')' 	{
+								if(exists_variable($3)==1)
+								{
+									if(get_typeof_variable($3)==1)
+									{
+										printf("TypeOf(%s) : int\n",$3);
+									}
+									else if(get_typeof_variable($3)==2)
+									{
+										printf("TypeOf(%s) : float\n",$3);
+									}
+									else if(get_typeof_variable($3)==3)
+									{
+										printf("TypeOf(%s) : char\n",$3);
+									}
+									else if(get_typeof_variable($3)==4)
+									{
+										printf("TypeOf(%s) : string\n",$3);
+									}
+									else if(get_typeof_variable($3)==5)
+									{
+										printf("TypeOf(%s) : bool\n",$3);
+									}
+								}
+								else
+								{
+									char* error[100];
+									strcpy(error,"Variable \"");
+									strcat(error,$3);
+									strcat(error, "\" is not declared.");
+									yyerror(strdup(error));
+									exit(0);
+								}
+							}
+       | TYPEOF '(' expresie ')' {
+									if(get_typeof_function(nume_typeof)==1)
+									{
+										printf("TypeOf(%s) : int\n",nume_typeof);
+									}
+									else if(get_typeof_function(nume_typeof)==2)
+									{
+										printf("TypeOf(%s) : float\n",nume_typeof);
+									}
+									else if(get_typeof_function(nume_typeof)==3)
+									{
+										printf("TypeOf(%s) : char\n",nume_typeof);
+									}
+									else if(get_typeof_function(nume_typeof)==4)
+									{
+										printf("TypeOf(%s) : string\n",nume_typeof);
+									}
+									else if(get_typeof_function(nume_typeof)==5)
+									{
+										printf("TypeOf(%s) : bool\n",nume_typeof);
+									}
+	   							}
+       /*| TYPEOF '(' NR ')' 	{
+								printf("TypeOf(%s) : int\n",$3);
+	   						}
+	    | TYPEOF '(' FLOAT ')'	{
+									printf("TypeOf(%s) : float\n",$3);
+	   							}
+	   | TYPEOF '(' '\'' CHAR '\'' ')'	{
+											printf("TypeOf('%s') : char\n",$4);
+										}
+	   | TYPEOF '(' '"' STRING '"' ')'	{
+											printf("TypeOf(\"%s\") : string\n",$4);
+										}
+	   | TYPEOF '(' BOOL ')'	{
+									printf("TypeOf(%s) : bool\n",$3);
+	   							} */
+       ;
 
 lista_array : /*epsilon*/ {$$ = malloc(sizeof(struct list)); $$->nr_dimensiuni=0;}
 			| '[' NR ']' lista_array { 
@@ -159,34 +225,6 @@ list :  statement ';'
      | list statement ';'
      ;
 
-/* instructiune */
-
-/* lvalue : ID {
-				if(exists_variable($1)==1)
-				{
-					printf("%s variable exists.\n",$1);
-				}
-				else
-				{
-					//printf("%s doesn't exists.\n",$1);
-					yyerror("Variable is not declared.");
-    				exit(0);
-				}
-			}
-	   | lvalue '.' ID {
-							if(exists_variable($3)==1)
-							{
-								printf("%s variable exists.\n",$3);
-							}
-							else
-							{
-								//printf("%s doesn't exists.\n",$3);
-								yyerror("Variable is not declared.");
-								exit(0);
-							}
-						}
-	   | lvalue '[' expresie ']'
-	   ; */
 
 assignment : ID ASSIGN expresie {
 									if(exists_variable($1)==1)
@@ -195,8 +233,11 @@ assignment : ID ASSIGN expresie {
 									}
 									else
 									{
-										//printf("%s doesn't exists.\n",$1);
-										yyerror("Variable is not declared.");
+										char* error[100];
+										strcpy(error,"Variable \"");
+										strcat(error,$1);
+										strcat(error, "\" is not declared.");
+										yyerror(strdup(error));
 										exit(0);
 									}
 								}
@@ -210,7 +251,11 @@ statement : assignment
 											verify_parameters($1,parameters,nr_parametri);
 											if(verify_no_parameters($1)==1)
 											{
-												yyerror("Function is not declared with any parameters.");
+												char* error[100];
+												strcpy(error,"Function \"");
+												strcat(error,$1);
+												strcat(error, "\" is not declared with any parameters.");
+												yyerror(strdup(error));
 												exit(0);
 											}
 											else
@@ -221,7 +266,11 @@ statement : assignment
 										}
 										else
 										{
-											yyerror("Function is not declared.");
+											char* error[100];
+											strcpy(error,"Function \"");
+											strcat(error,$1);
+											strcat(error, "\" is not declared.");
+											yyerror(strdup(error));
 											exit(0);
 										}
 									}
@@ -233,7 +282,11 @@ statement : assignment
 
 								if(verify_no_parameters($1)==1)
 								{
-									yyerror("Function is not declared with any parameters.");
+									char* error[100];
+									strcpy(error,"Function \"");
+									strcat(error,$1);
+									strcat(error, "\" is not declared with any parameters.");
+									yyerror(strdup(error));
 									exit(0);
 								}
 								else
@@ -244,11 +297,16 @@ statement : assignment
 							}
 							else
 							{
-								yyerror("Function is not declared.");
+								char* error[100];
+								strcpy(error,"Function \"");
+								strcat(error,$1);
+								strcat(error, "\" is not declared.");
+								yyerror(strdup(error));
 								exit(0);
 							}
 						}
           | eval
+		  | typeof
           | control_statement
           ;
 
@@ -284,32 +342,8 @@ boolean_expr : '(' boolean_expr ')'
 			 ;
 
 
-lista_apel : param_apel {
-							// if(exists_variable($1)==1)
-							// 	{
-							// 		printf("%s variable exists.\n",$1);
-							// 		strcpy(parameters[nr_parametri],$1);
-							// 		nr_parametri++;
-							// 	}
-							// 	else
-							// 	{
-							// 		yyerror("Variable is not declared.");
-							// 		exit(0);
-							// 	}
-						}
-            | lista_apel ','  param_apel {
-											// if(exists_variable($1)==1)
-											// 	{
-											// 		printf("%s variable exists.\n",$3);
-											// 		strcpy(parameters[nr_parametri],$3);
-											// 		nr_parametri++;
-											// 	}
-											// 	else
-											// 	{
-											// 		yyerror("Variable is not declared.");
-											// 		exit(0);
-											// 	}
-										}
+lista_apel : param_apel {}
+            | lista_apel ','  param_apel {}
             ;
 
 param_apel : ID {
@@ -321,17 +355,16 @@ param_apel : ID {
 					}
 					else
 					{
-						yyerror("Variable is not declared.");
+						char* error[100];
+						strcpy(error,"Variable \"");
+						strcat(error,$1);
+						strcat(error, "\" is not declared.");
+						yyerror(strdup(error));
 						exit(0);
-					}
-							
+					}		
 				}
       	   ;
 
-/* lista_apel : /*epsilon*/
-/*		   | expresie
-           | lista_apel ',' expresie 
-           ; */
 
 eval : EVAL '(' expresie ')'
 	 ;
@@ -353,7 +386,11 @@ expresie: expresie '+' expresie  {}
 			}
 			else
 			{
-				yyerror("Variable is not declared.");
+				char* error[100];
+				strcpy(error,"Variable \"");
+				strcat(error,$1);
+				strcat(error, "\" is not declared.");
+				yyerror(strdup(error));
 				exit(0);
 			}
  		}
@@ -364,40 +401,58 @@ expresie: expresie '+' expresie  {}
 									verify_parameters($1,parameters,nr_parametri);
 									if(verify_no_parameters($1)==1)
 									{
-										yyerror("Function is not declared with any parameters.");
+										char* error[100];
+										strcpy(error,"Function \"");
+										strcat(error,$1);
+										strcat(error, "\" is not declared with any parameters.");
+										yyerror(strdup(error));
 										exit(0);
 									}
 									else
 									{
 										printf("%s function is called correctly.\n",$1);
+										nume_typeof = $1;
 									}
 									nr_parametri=0;
 								}
 								else
 								{
-									yyerror("Function is not declared.");
+									char* error[100];
+									strcpy(error,"Function \"");
+									strcat(error,$1);
+									strcat(error, "\" is not declared.");
+									yyerror(strdup(error));
 									exit(0);
 								}
 							}
-| ID '('')'	{
+ | ID '('')'	{
 				if(exists_function($1)==1)
 				{
 					printf("%s function exists.\n",$1);
 					verify_parameters($1,parameters,nr_parametri);
 					if(verify_no_parameters($1)==1)
 					{
-						yyerror("Function is not declared with any parameters.");
-						exit(0);
+						printf("%s function is called correctly.\n",$1);
+						nume_typeof = $1;
 					}
 					else
 					{
-						printf("%s function is called correctly.\n",$1);
+						char* error[100];
+						strcpy(error,"Function \"");
+						strcat(error,$1);
+						strcat(error, "\" is not declared with any parameters.");
+						yyerror(strdup(error));
+						exit(0);
 					}
 					nr_parametri = 0;
 				}
 				else
 				{
-					yyerror("Function is not declared.");
+					char* error[100];
+					strcpy(error,"Function \"");
+					strcat(error,$1);
+					strcat(error, "\" is not declared.");
+					yyerror(strdup(error));
 					exit(0);
 				}
 			}
