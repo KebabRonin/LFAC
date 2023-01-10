@@ -87,7 +87,7 @@ void verify_expresie(int tipuri_expresii[100],int nr_expresii)
     {
         if(tipuri_expresii[i] != primul)
         {
-            printf("tipul primului = %d,\ntipul urmatorului = %d\n",primul,tipuri_expresii[i]);
+            printf("tipul primului = %d\ntipul urmatorului = %d\n",primul,tipuri_expresii[i]);
             yyerror("Types don't match in the right side");
             exit(0);
         }

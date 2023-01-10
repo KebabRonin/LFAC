@@ -18,7 +18,9 @@ int is_int = 0;
 int is_float = 0;
 float f;
 int tipuri_expresii[100];
+char elemente_expresie[100][100];
 int nr_expresii = 0;
+int nr_elemente_expresie = 0;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param);
@@ -96,30 +98,51 @@ tip_date : TIP {$$ = malloc(sizeof(struct Tip_Date)); $$->tip = strdup($1); $$->
 		 ;
 
 typeof : TYPEOF '(' expresie ')'{
-									if(is_char==1)
+									verify_expresie(tipuri_expresii,nr_expresii);
+									
+									if(nr_elemente_expresie == 1)
 									{
-										printf("TypeOf('%c') : %s\n",nume_typeof,typeOf);
-										is_char=0;
-									}
-									else if(is_string==1)
-									{
-										printf("TypeOf(\"%s\") : %s\n",nume_typeof,typeOf);
-										is_string=0;
-									}
-									else if(is_int==1)
-									{
-										printf("TypeOf(%d) : %s\n",nume_typeof,typeOf);
-										is_int=0;
-									}
-									else if(is_float==1)
-									{
-										printf("TypeOf(%f) : %s\n",f,typeOf);
-										is_float=0;
+										if(is_char==1)
+										{
+											printf("TypeOf('%c') : %s\n",nume_typeof,typeOf);
+											is_char=0;
+										}
+										else if(is_string==1)
+										{
+											printf("TypeOf(\"%s\") : %s\n",nume_typeof,typeOf);
+											is_string=0;
+										}
+										else if(is_int==1)
+										{
+											printf("TypeOf(%d) : %s\n",nume_typeof,typeOf);
+											is_int=0;
+										}
+										else if(is_float==1)
+										{
+											printf("TypeOf(%f) : %s\n",f,typeOf);
+											is_float=0;
+										}
+										else
+										{
+											printf("TypeOf(%s) : %s\n",nume_typeof,typeOf);
+										}
 									}
 									else
 									{
-										printf("TypeOf(%s) : %s\n",nume_typeof,typeOf);
+										printf("TypeOf(expression) : %s\n",typeOf);
+										// int i=0;
+										// printf("TypeOf(");
+										// for(i=0;i<nr_elemente_expresie;i++)
+										// {
+										// 	printf("%s",elemente_expresie[i]);
+										// }
+										// printf(") : %s\n",typeOf);
 									}
+									
+									nr_expresii=0;
+									nr_elemente_expresie = 0;
+									memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+									memset(elemente_expresie, 0, sizeof(elemente_expresie));
 	   							}
        ;
 
@@ -218,10 +241,6 @@ statement : assignment
 												yyerror(strdup(error));
 												exit(0);
 											}
-											else
-											{
-												printf("%s function is called correctly.\n",$1);
-											}
 											nr_parametri = 0;
 										}
 										else
@@ -248,10 +267,6 @@ statement : assignment
 									strcat(error, "\" is not declared with any parameters.");
 									yyerror(strdup(error));
 									exit(0);
-								}
-								else
-								{
-									printf("%s function is called correctly.\n",$1);
 								}
 								nr_parametri = 0;
 							}
@@ -332,10 +347,22 @@ param_apel : ID {
 eval : EVAL '(' expresie ')'
 	 ;
 
-expresie: expresie '+' expresie  {}
- | expresie '*' expresie {}
- | expresie '-' expresie {}
- | expresie '/' expresie {}
+expresie: expresie '+' expresie  	{
+										strcpy(elemente_expresie[nr_elemente_expresie],"+");
+										nr_elemente_expresie++;
+									}
+ | expresie '*' expresie 	{
+								strcpy(elemente_expresie[nr_elemente_expresie],"*");
+								nr_elemente_expresie++;
+							}
+ | expresie '-' expresie 	{
+								strcpy(elemente_expresie[nr_elemente_expresie],"-");
+								nr_elemente_expresie++;
+							}
+ | expresie '/' expresie 	{
+								strcpy(elemente_expresie[nr_elemente_expresie],"/");
+								nr_elemente_expresie++;
+							}
  | '(' expresie ')' {}
  | NR 	{	
  			nume_typeof = $1;
@@ -403,7 +430,9 @@ expresie: expresie '+' expresie  {}
 					typeOf = "bool";
 				}
 				tipuri_expresii[nr_expresii] = get_typeof($1);
+				strcpy(elemente_expresie[nr_elemente_expresie],$1);
 				nr_expresii++;
+				nr_elemente_expresie++;
 			}
 			else
 			{
@@ -430,7 +459,6 @@ expresie: expresie '+' expresie  {}
 									}
 									else
 									{
-										printf("%s function is called correctly.\n",$1);
 										nume_typeof = $1;
 										is_char = 0;is_string = 0;is_int = 0;is_float = 0;
 										if(get_typeof($1)==1)
@@ -454,7 +482,9 @@ expresie: expresie '+' expresie  {}
 											typeOf = "bool";
 										}
 										tipuri_expresii[nr_expresii] = get_typeof($1);
+										strcpy(elemente_expresie[nr_elemente_expresie],$1);
 										nr_expresii++;
+										nr_elemente_expresie++;
 									}
 									nr_parametri=0;
 								}
@@ -474,7 +504,6 @@ expresie: expresie '+' expresie  {}
 					verify_parameters($1,parameters,nr_parametri);
 					if(verify_no_parameters($1)==1)
 					{
-						printf("%s function is called correctly.\n",$1);
 						nume_typeof = $1;
 						if(get_typeof(nume_typeof)==1)
 						{
@@ -497,7 +526,9 @@ expresie: expresie '+' expresie  {}
 							typeOf = "bool";
 						}
 						tipuri_expresii[nr_expresii] = get_typeof($1);
+						strcpy(elemente_expresie[nr_elemente_expresie],$1);
 						nr_expresii++;
+						nr_elemente_expresie++;
 					}
 					else
 					{

@@ -3,3 +3,4 @@ Nume: j, Tip:int, Const?:0, size:1
 Nume: a, Tip:float, Const?:0, size:1
 Nume: c, Tip:float, Const?:0, size:21600
 Nume: m, Tip:int, Const?:0, size:3
+Nume: o, Tip:bool, Const?:0, size:1
