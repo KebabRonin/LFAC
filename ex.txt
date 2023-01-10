@@ -16,7 +16,7 @@ struct Mystruct {}
 
 begin_progr
 
-	TypeOf(g());
+	TypeOf('v');
 	Eval(a+3*b);
 	m = 3;
 	m=f(b,j,a);

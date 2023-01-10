@@ -10,7 +10,7 @@ int yydebug=1;
 struct Tip_Date* now_declaring = NULL;
 char parameters[100][100];
 int nr_parametri = 0;
-int typeOf;
+char* typeOf;
 char* nume_typeof;
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
@@ -88,7 +88,10 @@ tip_date : TIP {$$ = malloc(sizeof(struct Tip_Date)); $$->tip = strdup($1); $$->
 		 | typeof {$$ = NULL;}
 		 ;
 
-typeof : TYPEOF '(' ID ')' 	{
+typeof : TYPEOF '(' expresie ')'{
+									printf("TypeOf('%c') : %s\n",nume_typeof,typeOf);
+	   							}
+	   | TYPEOF '(' ID ')' 	{
 								if(exists_variable($3)==1)
 								{
 									if(get_typeof_variable($3)==1)
@@ -122,43 +125,6 @@ typeof : TYPEOF '(' ID ')' 	{
 									exit(0);
 								}
 							}
-       | TYPEOF '(' expresie ')' {
-									if(get_typeof_function(nume_typeof)==1)
-									{
-										printf("TypeOf(%s) : int\n",nume_typeof);
-									}
-									else if(get_typeof_function(nume_typeof)==2)
-									{
-										printf("TypeOf(%s) : float\n",nume_typeof);
-									}
-									else if(get_typeof_function(nume_typeof)==3)
-									{
-										printf("TypeOf(%s) : char\n",nume_typeof);
-									}
-									else if(get_typeof_function(nume_typeof)==4)
-									{
-										printf("TypeOf(%s) : string\n",nume_typeof);
-									}
-									else if(get_typeof_function(nume_typeof)==5)
-									{
-										printf("TypeOf(%s) : bool\n",nume_typeof);
-									}
-	   							}
-       /*| TYPEOF '(' NR ')' 	{
-								printf("TypeOf(%s) : int\n",$3);
-	   						}
-	    | TYPEOF '(' FLOAT ')'	{
-									printf("TypeOf(%s) : float\n",$3);
-	   							}
-	   | TYPEOF '(' '\'' CHAR '\'' ')'	{
-											printf("TypeOf('%s') : char\n",$4);
-										}
-	   | TYPEOF '(' '"' STRING '"' ')'	{
-											printf("TypeOf(\"%s\") : string\n",$4);
-										}
-	   | TYPEOF '(' BOOL ')'	{
-									printf("TypeOf(%s) : bool\n",$3);
-	   							} */
        ;
 
 lista_array : /*epsilon*/ {$$ = malloc(sizeof(struct list)); $$->nr_dimensiuni=0;}
@@ -377,7 +343,12 @@ expresie: expresie '+' expresie  {}
  | NR {printf("Nr : |%d|\n",$1);}
  | STRING {printf("Str : |%s|\n",$1);}
  | FLOAT {printf("Float : |%f|\n",$1);}
- | CHAR {printf("Char : |%c|\n",$1);}
+ | CHAR {
+			printf("Char : |%c|\n",$1);
+			nume_typeof = $1;
+			typeOf = "char";
+			printf("nume_typeof = %c, typeof = %s\n",nume_typeof,typeOf);
+ 		}
  | BOOL {printf("Bool : |%d|\n",$1);}
  | ID 	{
 			if(exists_variable($1)==1)
@@ -412,6 +383,26 @@ expresie: expresie '+' expresie  {}
 									{
 										printf("%s function is called correctly.\n",$1);
 										nume_typeof = $1;
+										if(get_typeof_function(nume_typeof)==1)
+										{
+											typeOf = "int";
+										}
+										else if(get_typeof_function(nume_typeof)==2)
+										{
+											typeOf = "float";
+										}
+										else if(get_typeof_function(nume_typeof)==3)
+										{
+											typeOf = "char";
+										}
+										else if(get_typeof_function(nume_typeof)==4)
+										{
+											typeOf = "string";
+										}
+										else if(get_typeof_function(nume_typeof)==5)
+										{
+											typeOf = "bool";
+										}
 									}
 									nr_parametri=0;
 								}
@@ -434,6 +425,26 @@ expresie: expresie '+' expresie  {}
 					{
 						printf("%s function is called correctly.\n",$1);
 						nume_typeof = $1;
+						if(get_typeof_function(nume_typeof)==1)
+						{
+							typeOf = "int";
+						}
+						else if(get_typeof_function(nume_typeof)==2)
+						{
+							typeOf = "float";
+						}
+						else if(get_typeof_function(nume_typeof)==3)
+						{
+							typeOf = "char";
+						}
+						else if(get_typeof_function(nume_typeof)==4)
+						{
+							typeOf = "string";
+						}
+						else if(get_typeof_function(nume_typeof)==5)
+						{
+							typeOf = "bool";
+						}
 					}
 					else
 					{
