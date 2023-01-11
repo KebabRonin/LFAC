@@ -23,6 +23,7 @@ char elemente_expresie[100][100];
 int nr_expresii = 0;
 int nr_elemente_expresie = 0;
 int is_eval = 0;
+char parametri[100][100];
 
 struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right, int type);
 void freeAST(struct AstNode* self);
@@ -214,7 +215,7 @@ lista_param : /*epsilon*/ {$$ = malloc(sizeof(struct list)); $$->nr_dimensiuni =
 			;
 
 lista_param_non_void : param {$$ = malloc(sizeof(struct list)); $$->dimensiune[0] = $1; $$->nr_dimensiuni = 1;}
-            | lista_param_non_void ','  param {$$ = $1; $$->dimensiune[$$->nr_dimensiuni++] = $3;}
+            		 | lista_param_non_void ','  param {$$ = $1; $$->dimensiune[$$->nr_dimensiuni++] = $3;}
             ;
 
 param : tip_date ID lista_array {

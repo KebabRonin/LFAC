@@ -22,7 +22,7 @@ Params : [
 	]
 }
 {
-Name: testF,
+Name: testFunction,
 Ret_type: {Tip:int, Const?:0, size:1},
 Params : [
 	{Nume: x, Tip:int, Const?:0, size:1}

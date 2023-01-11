@@ -4,6 +4,7 @@
 //fnc expression param call
 //struct define global
 //struct access data member
+//eval cu functii
 
 _global
 //Acest fisier ar trebui sa se compileze fara nici o eroare. Folositi sintaxa proprie, desigur
@@ -35,7 +36,7 @@ int testFunction(int x, float z) {
 
 //!trebuie cu overloading
 
-int testF(int x, int z) {
+int testFunction(int x, int z) {
   //puteti pune orice aici
   m = false;
 }

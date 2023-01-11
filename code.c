@@ -156,28 +156,38 @@ void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param)
     {
         if(strcmp(fn_table.entries[k].name,nume)==0)
         {
-            char* error[100];
-            strcpy(error,"There already exists a function called \"");
-            strcat(error,nume);
-            strcat(error, "\".");
-            yyerror(strdup(error));
-            exit(0);
+            struct functie fnc_same_name;
+            for (int i = 0; i < param->nr_dimensiuni; i++) 
+            {
+                fnc_same_name.param[i] = param->dimensiune[i];
+            }
+            int w,ok=1;
+            if(strcmp(ret->tip,fn_table.entries[k].return_type->tip)==0)
+            {
+                for (w = 0; w < param->nr_dimensiuni; w++) 
+                {
+                    if(strcmp(fnc_same_name.param[w]->tip->tip,fn_table.entries[k].param[w]->tip->tip)!=0)
+                    {
+                        ok=0;
+                        break;
+                    }
+                }
+                if(ok==1)
+                {
+                    char* error[100];
+                    strcpy(error,"There already exists a function called \"");
+                    strcat(error,nume);
+                    strcat(error, "\" having the parameters's types exactly the same.");
+                    yyerror(strdup(error));
+                    exit(0);
+                }
+            }  
         }
     }
-
 
 	struct functie newentry;
     newentry.return_type = ret;
     newentry.name = strdup(nume);
-	//newentry.return_type = ret;
-    //memcpy(newentry.return_type, ret, sizeof(struct Tip_Date)); cu malloc!!
-
-    // int size = 1;
-    // for(int i=0;i<newentry.tip->size->nr_dimensiuni;i++)
-    // {
-    //     size=size*newentry.tip->size->dimensiune[i];
-    // }
-
     newentry.nr_param = param->nr_dimensiuni;
     
 	for (int i = 0; i < param->nr_dimensiuni; i++) {
