@@ -9,7 +9,7 @@ Params : [
 }
 {
 Name: g,
-Ret_type: {Tip:int, Const?:0, size:1},
+Ret_type: {Tip:bool, Const?:0, size:1},
 Params : [
 	]
 }

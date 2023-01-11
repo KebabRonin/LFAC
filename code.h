@@ -30,7 +30,7 @@ struct UserDef {
 	char* nume;
 	struct tabela_simboluri* date;
 };
-enum Types {INT, OP, IDENTIFIER};
+enum Types {OP, IDENTIFIER, INT, STR, CHR, BOL, FLT, FNC};
 struct AstNode {
 	struct AstNode* Left, *Right;
 	int valoare;

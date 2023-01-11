@@ -192,9 +192,9 @@ int exists_variable(char *s)
     for(i=0;i<sym_table->nr_entries;i++)
     {
         if(strcmp(s,sym_table->entries[i].nume)==0)
-            return 1;
+            return i;
     }
-    return 0;
+    return -1;
 }
 void check_arrayList(char* nume, struct list* array_sizes) {
     int i=0;
@@ -221,9 +221,9 @@ int exists_function(char *s)
     for(i=0;i<fn_table.nr_entries;i++)
     {
         if(strcmp(s,fn_table.entries[i].name)==0)
-            return 1;
+            return i;
     }
-    return 0;
+    return -1;
 }
 int verify_no_parameters(char* s)
 {
@@ -441,6 +441,7 @@ struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right
     struct AstNode* self = malloc(sizeof(struct AstNode));
     self->Left = left; self->Right = right;
     self->tip = type;
+
     if(type == INT)
     {
         self->valoare = *((int*)root);
@@ -448,14 +449,18 @@ struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right
     }
     else if(type == OP) 
     {
+        //printf("operator %c\n", *((char*)root));
         self->valoare = *((char*)root);
     }
     else if(type == IDENTIFIER) 
     {
         int i=0;
+        //printf("Looking for var %s\n",root);
         for(i=0;i<sym_table->nr_entries;i++)
         {
             if(strcmp(root,sym_table->entries[i].nume)==0) {
+                self->valoare = i;
+                //printf("ID index: %d\n", i);
                 self->valoare = i;
                 break;
             }
@@ -465,8 +470,51 @@ struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right
             exit(1);
         }
     }
+    else if (type == FNC) {
+        int i=0;
+        //printf("Looking for fnc %s\n",root);
+        for(i=0;i<sym_table->nr_entries;i++)
+        {
+            if(strcmp(root,fn_table.entries[i].name)==0) {
+                self->valoare = i;
+                //printf("FNC index: %d\n", i);
+                break;
+            }
+        }
+        if(i == fn_table.nr_entries) {
+            printf("EvalERROR: Variable not found\n");
+            exit(1);
+        }
+
+    }
+    else {
+        self->valoare = 0;
+    }
     printf("%d, %d\n",self->valoare,self->tip);
     return self;
+}
+int is_ASTint(struct AstNode* root) {
+    int left = 1;
+    int right = 1;
+    int self = 1;
+    if(root->Left != 0) {
+        left = is_ASTint(root->Left);
+    }
+    if(root->Right != 0) {
+        right = is_ASTint(root->Right);
+    }
+    if (root->tip == FNC) {
+        if(strcmp(fn_table.entries[root->valoare].return_type->tip, "int") != 0)
+            self = 0;
+    }
+    else if (root->tip == IDENTIFIER) {
+        if(strcmp(sym_table->entries[root->valoare].tip->tip, "int") != 0)
+            self = 0;
+    }
+    else if (root->tip != INT && root->tip != OP) {
+        self = 0;
+    }
+    return (self && left && right);
 }
 void freeAST(struct AstNode* self) {
     if (self->Left != 0) {
@@ -479,6 +527,7 @@ void freeAST(struct AstNode* self) {
     free(self);
 }
 int EvalAST(struct AstNode* root) {
+    //printf("Root type: %d\n",root->tip);
     if(root->tip == INT) 
     {
         return root->valoare;
@@ -495,11 +544,39 @@ int EvalAST(struct AstNode* root) {
         case '/':
             return EvalAST(root->Left) / EvalAST(root->Right);
         default:
-            printf("Unknown operator\n");
-            return 0;
+            printf("EvalERROR: Unknown operator\n");
+            exit(0);
         }
     }
-    // else if (root->tip == IDENTIFIER) {
-    //     ;// caut in sy_table pt identifier si returnez valoarea
-    // }
+    else if (root->tip == IDENTIFIER) {
+        if(strcmp(sym_table->entries[root->valoare].tip->tip, "int") == 0)
+            return *((int*)(sym_table->entries[root->valoare].valoare));
+        else 
+            return 0;
+    }
+    else if (root->tip == FNC) {
+        printf("Function found, since function calls are not implemented it will return 0\n");
+        return 0;
+    }
+    else {
+        printf("%d\n",root->tip);
+        yyerror("Type unsupported for eval");
+        return -1;
+    }
+}
+void assign(int index, struct AstNode* root) {
+    if(index < 0 || index >= sym_table->nr_entries) {
+        printf("Error assign: variable index is out of bounds\n");
+        exit(2);
+    }
+    if (sym_table->entries[index].tip->is_const == 1) {
+        yyerror("Cannot assign to const variable");
+        exit(0);
+    }
+    if(is_ASTint(root)) {
+        *((int*)(sym_table->entries[index].valoare)) = EvalAST(root);
+    }
+    else {
+        yyerror("Assignment works only on int");
+    }
 }

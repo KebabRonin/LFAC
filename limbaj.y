@@ -74,9 +74,6 @@ declaratii_fnc : /*epsilon*/
 			   ;
 
 declaratii_fnc_atomic : /*epsilon*/
-			   | declaratii_fnc_atomic tip_date ID '(' lista_param ')' ';' {
-																				new_entry_fn($3, $2, $5);
-																			}
 			   | declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}' {
 																						new_entry_fn($3, $2, $5);
 																					}
@@ -246,7 +243,7 @@ list : statement ';'
 
 
 assignment : ID ASSIGN expresie {
-									if(exists_variable($1)!=1)
+									if(exists_variable($1)<0)
 									{
 										char* error[100];
 										strcpy(error,"Variable \"");
@@ -258,12 +255,16 @@ assignment : ID ASSIGN expresie {
 									verify_assignement($1,tipuri_expresii,nr_expresii);
 									nr_expresii=0;
 									memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+
+									int val = exists_variable($1);
+									assign(val, $3);
+									freeAST($3);
 								}
 		   ;
 
 statement : assignment
           | ID '(' lista_apel ')' 	{
-										if(exists_function($1)==1)
+										if(exists_function($1)>=0)
 										{
 											printf("%s function exists.\n",$1);
 											verify_parameters($1,parameters,nr_parametri);
@@ -289,7 +290,7 @@ statement : assignment
 										}
 									}
 		  | ID '('')'	{
-							if(exists_function($1)==1)
+							if(exists_function($1)>=0)
 							{
 								printf("%s function exists.\n",$1);
 								verify_parameters($1,parameters,nr_parametri);
@@ -361,7 +362,7 @@ lista_apel : param_apel {}
             ;
 
 param_apel : ID {
-					if(exists_variable($1)==1)
+					if(exists_variable($1)>=0)
 					{
 						strcpy(parameters[nr_parametri],$1);
 						nr_parametri++;
@@ -381,6 +382,10 @@ param_apel : ID {
 
 eval : EVAL '(' expresie ')' {	
 								verify_expresie(tipuri_expresii,nr_expresii);
+								if(is_ASTint($3) == 0) {
+									yyerror("Type unsupported for eval");
+									exit(0);
+								}
 								int rez = EvalAST($3);
 								printf("Eval result : %d\n",rez);
 								freeAST($3);
@@ -429,6 +434,8 @@ expresie: expresie '+' expresie  	{
 				is_string=1;
 				tipuri_expresii[nr_expresii] = 4;
 				nr_expresii++;
+				int a = $1;
+				$$ = buildAST(&a, 0, 0, STR);
 			}
  | FLOAT 	{
 				f = $1;
@@ -436,6 +443,8 @@ expresie: expresie '+' expresie  	{
 				is_float=1;
 				tipuri_expresii[nr_expresii] = 2;
 				nr_expresii++;
+				int a = $1;
+				$$ = buildAST(&a, 0, 0, FLT);
 			}
  | CHAR {
 			nume_typeof = $1;
@@ -443,6 +452,8 @@ expresie: expresie '+' expresie  	{
 			is_char=1;
 			tipuri_expresii[nr_expresii] = 3;
 			nr_expresii++;
+				int a = $1;
+				$$ = buildAST(&a, 0, 0, CHR);
  		}
  | BOOL {
 			if($1 == 1)
@@ -456,9 +467,11 @@ expresie: expresie '+' expresie  	{
 			typeOf = "bool";
 			tipuri_expresii[nr_expresii] = 5;
 			nr_expresii++;
+			int a = $1;
+			$$ = buildAST(&a, 0, 0, BOL);
 		}
  | ID lista_array	{
-			if(exists_variable($1)==1)
+			if(exists_variable($1)>=0)
 			{
 				check_arrayList($1, $2);
 				nume_typeof = $1;
@@ -489,6 +502,7 @@ expresie: expresie '+' expresie  	{
 				strcpy(elemente_expresie[nr_elemente_expresie],$1);
 				nr_expresii++;
 				nr_elemente_expresie++;
+				$$ = buildAST($1, 0, 0, IDENTIFIER);
 			}
 			else
 			{
@@ -501,7 +515,7 @@ expresie: expresie '+' expresie  	{
 			}
  		}
  | ID '(' lista_apel ')' 	{
-								if(exists_function($1)==1)
+								if(exists_function($1)>=0)
 								{
 									verify_parameters($1,parameters,nr_parametri);
 									if(verify_no_parameters($1)==1)
@@ -543,6 +557,7 @@ expresie: expresie '+' expresie  	{
 										nr_elemente_expresie++;
 									}
 									nr_parametri=0;
+									$$ = buildAST($1, 0, 0, FNC);
 								}
 								else
 								{
@@ -555,7 +570,7 @@ expresie: expresie '+' expresie  	{
 								}
 							}
  | ID '('')'	{
-				if(exists_function($1)==1)
+				if(exists_function($1)>=0)
 				{
 					verify_parameters($1,parameters,nr_parametri);
 					if(verify_no_parameters($1)==1)
@@ -585,6 +600,7 @@ expresie: expresie '+' expresie  	{
 						strcpy(elemente_expresie[nr_elemente_expresie],$1);
 						nr_expresii++;
 						nr_elemente_expresie++;
+						$$ = buildAST($1,0,0,FNC);
 					}
 					else
 					{

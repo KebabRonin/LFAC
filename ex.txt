@@ -3,12 +3,12 @@ _global
 string b[100];
 char j;
 float a,c[3];
-int m[3];
+bool m;
 int o;
 _fnc
 
-int f(string b[200][3],char j,float a);
-int g();
+int f(string b[200][3],char j,float a) {a = 1.2;}
+bool g() {m = false;}
 
 _userdef
 
@@ -16,10 +16,9 @@ struct Mystruct {int fd;}fd;
 
 
 begin_progr
-
-	Eval(3*(6+4));
-	m = 3;
-	m = g();
-	
-	
+	o = 80;
+	Eval(o);
+	m = true;
+	Eval(5+700/(o-10));
+	b = "salut" + "!";
 end_progr
