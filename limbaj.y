@@ -81,7 +81,7 @@ declaratii_fnc_atomic : /*epsilon*/
 			   ;
 
 declaratii_structuri : /*epsilon*/
-			   | STRUCTDEF declaratii_structuri_atomic
+			   | STRUCTDEF declaratii_structuri_atomic {export_sy_table();}
 			   ;
 
 lista_date_membru : /*epsilon*/
@@ -261,6 +261,25 @@ assignment : ID lista_array ASSIGN expresie {
 									int val = exists_variable($1);
 									assign(val, $4);
 									freeAST($4);
+								}
+			| ID lista_array '.' ID ASSIGN expresie {
+									if(exists_variable($1)<0)
+									{
+										char* error[100];
+										strcpy(error,"Variable \"");
+										strcat(error,$1);
+										strcat(error, "\" is not declared.");
+										yyerror(strdup(error));
+										exit(0);
+									}
+									check_arrayList($1, $2);
+									verify_assignement($1,tipuri_expresii,nr_expresii);
+									nr_expresii=0;
+									memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+
+									int val = exists_variable($1);
+									assign(val, $6);
+									freeAST($6);
 								}
 		   ;
 
@@ -473,6 +492,50 @@ expresie: expresie '+' expresie  	{
 			$$ = buildAST(&a, 0, 0, BOL);
 		}
  | ID lista_array	{
+			if(exists_variable($1)>=0)
+			{
+				check_arrayList($1, $2);
+				nume_typeof = $1;
+				if(get_typeof($1)==1)
+				{
+					typeOf = "int";
+				}
+				else if(get_typeof($1)==2)
+				{
+					typeOf = "float";
+				}
+				else if(get_typeof($1)==3)
+				{
+					typeOf = "char";
+				}
+				else if(get_typeof($1)==4)
+				{
+					typeOf = "string";
+				}
+				else if(get_typeof($1)==5)
+				{
+					typeOf = "bool";
+				}
+				else {
+					typeOf = structNames[get_typeof($1)-6];
+				}
+				tipuri_expresii[nr_expresii] = get_typeof($1);
+				strcpy(elemente_expresie[nr_elemente_expresie],$1);
+				nr_expresii++;
+				nr_elemente_expresie++;
+				$$ = buildAST($1, 0, 0, IDENTIFIER);
+			}
+			else
+			{
+				char* error[100];
+				strcpy(error,"Variable \"");
+				strcat(error,$1);
+				strcat(error, "\" is not declared.");
+				yyerror(strdup(error));
+				exit(0);
+			}
+ 		}
+| ID lista_array '.' ID	{
 			if(exists_variable($1)>=0)
 			{
 				check_arrayList($1, $2);

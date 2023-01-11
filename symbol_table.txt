@@ -11,3 +11,4 @@ Nume: a, Tip:float, Const?:0, size:1
 Nume: c, Tip:float, Const?:0, size:3
 Nume: m, Tip:bool, Const?:0, size:1
 Nume: o, Tip:int, Const?:0, size:1
+Nume: fd, Tip:Mystruct, Const?:0, size:1
