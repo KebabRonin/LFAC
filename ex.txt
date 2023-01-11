@@ -1,3 +1,10 @@
+//fnc overloading
+//fnc use parameters in fnc body
+//access array element values
+//fnc expression param call
+//struct define global
+//struct access data member
+
 _global
 //Acest fisier ar trebui sa se compileze fara nici o eroare. Folositi sintaxa proprie, desigur
 int x ;
@@ -73,4 +80,6 @@ Eval(x2* 10-200) ;
 Eval(x+ test(x1,x,fl)) ; 	
 TypeOf(x+23);
 TypeOf(fl-30.0);
+arr[3] = 5;
+Eval(arr[2]);
 end_progr
