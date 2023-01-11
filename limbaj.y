@@ -78,6 +78,9 @@ declaratii_fnc_atomic : /*epsilon*/
 			   | declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{' list '}' {
 																						new_entry_fn($3, $2, $5);
 																					}
+			   | declaratii_fnc_atomic tip_date ID '(' lista_param ')' '{''}' {
+							new_entry_fn($3, $2, $5);
+						}
 			   ;
 
 declaratii_structuri : /*epsilon*/
@@ -401,15 +404,18 @@ param_apel : ID {
       	   ;
 
 
-eval : EVAL '(' expresie ')' {	
+eval : EVAL {nr_expresii=0;
+			 memset(tipuri_expresii, 0, sizeof(tipuri_expresii));}'(' expresie ')' {	
 								verify_expresie(tipuri_expresii,nr_expresii);
-								if(is_ASTint($3) == 0) {
+								if(is_ASTint($4) == 0) {
 									yyerror("Type unsupported for eval");
 									exit(0);
 								}
-								int rez = EvalAST($3);
+								
+								int rez = EvalAST($4);
 								printf("Eval result : %d\n",rez);
-								freeAST($3);
+								freeAST($4);
+								
 								nr_expresii=0;
 								memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
 							}

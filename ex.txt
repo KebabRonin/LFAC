@@ -1,10 +1,8 @@
-//fnc overloading
+
 //fnc use parameters in fnc body
 //access array element values
 //fnc expression param call
-//struct define global
 //struct access data member
-//eval cu functii
 
 _global
 //Acest fisier ar trebui sa se compileze fara nici o eroare. Folositi sintaxa proprie, desigur
