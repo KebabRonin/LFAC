@@ -436,17 +436,22 @@ void export_fn_table()
     }
     close(fd);
 }
-struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right, int type) {
+struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right, int type)
+{
     struct AstNode* self = malloc(sizeof(struct AstNode));
     self->Left = left; self->Right = right;
     self->tip = type;
-    if(type == INT) {
+    if(type == INT)
+    {
         self->valoare = *((int*)root);
+        //printf("%d\n",self->valoare);
     }
-    else if(type == OP) {
+    else if(type == OP) 
+    {
         self->valoare = *((char*)root);
     }
-    else if(type == IDENTIFIER) {
+    else if(type == IDENTIFIER) 
+    {
         int i=0;
         for(i=0;i<sym_table->nr_entries;i++)
         {
@@ -460,6 +465,7 @@ struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right
             exit(1);
         }
     }
+    printf("%d, %d\n",self->valoare,self->tip);
     return self;
 }
 void freeAST(struct AstNode* self) {
@@ -473,26 +479,31 @@ void freeAST(struct AstNode* self) {
     free(self);
 }
 int EvalAST(struct AstNode* root) {
-    if(root->tip == INT) {
-        return root->valoare;
-    }
-    else if (root->tip == OP) {
-        switch (root->valoare)
-        {
-        case '+':
-            return EvalAST(root->Left) + EvalAST(root->Right);
-        case '-':
-            return EvalAST(root->Left) - EvalAST(root->Right);
-        case '*':
-            return EvalAST(root->Left) * EvalAST(root->Right);
-        case '/':
-            return EvalAST(root->Left) / EvalAST(root->Right);
-        default:
-            printf("Unknown operator\n");
-            return 0;
-        }
-    }
-    else if (root->tip == IDENTIFIER) {
-        ;// caut in sy_table pt identifier si returnez valoarea
-    }
+    printf("%d\n",root);
+    // root->valoare=1;
+    // printf("%d\n",root->valoare);
+    // if(root->tip == INT) 
+    // {
+    //     printf("%d\n",root->valoare);
+    //     return root->valoare;
+    // }
+    // else if (root->tip == OP) {
+    //     switch (root->valoare)
+    //     {
+    //     case '+':
+    //         return EvalAST(root->Left) + EvalAST(root->Right);
+    //     case '-':
+    //         return EvalAST(root->Left) - EvalAST(root->Right);
+    //     case '*':
+    //         return EvalAST(root->Left) * EvalAST(root->Right);
+    //     case '/':
+    //         return EvalAST(root->Left) / EvalAST(root->Right);
+    //     default:
+    //         printf("Unknown operator\n");
+    //         return 0;
+    //     }
+    // }
+    // else if (root->tip == IDENTIFIER) {
+    //     ;// caut in sy_table pt identifier si returnez valoarea
+    // }
 }

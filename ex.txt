@@ -16,11 +16,10 @@ struct Mystruct {int fd;}fd;
 
 
 begin_progr
+
 	Eval(3);
 	m = 3;
 	m = g();
-	if ( ( c[2] != 2.4 or a == c[0] and a > 2.3 ) ) {
-		m=5/2;
-	}
+	
 	
 end_progr

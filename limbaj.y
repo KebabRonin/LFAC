@@ -22,6 +22,11 @@ int tipuri_expresii[100];
 char elemente_expresie[100][100];
 int nr_expresii = 0;
 int nr_elemente_expresie = 0;
+int is_eval = 0;
+
+struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right, int type);
+void freeAST(struct AstNode* self);
+int EvalAST(struct AstNode* root);
 
 void new_entry_sy(char* nume, int is_const, char* tip, char* valoare, struct list* matrix);
 void new_entry_fn(char* nume, struct Tip_Date* ret, struct list* param);
@@ -159,7 +164,7 @@ typeof : TYPEOF '(' expresie ')'{
 									}
 									else
 									{
-										printf("TypeOf(expression) : %s\n",typeOf);
+										printf("TypeOf() : %s\n",typeOf);
 										// int i=0;
 										// printf("TypeOf(");
 										// for(i=0;i<nr_elemente_expresie;i++)
@@ -374,7 +379,16 @@ param_apel : ID {
       	   ;
 
 
-eval : EVAL '(' expresie ')' {	int rez = EvalAST($3); printf("Eval result : %d\n",rez); freeAST($3);}
+eval : EVAL '(' expresie ')' {	
+								verify_expresie(tipuri_expresii,nr_expresii);
+								// is_eval=1;
+								// int rez = EvalAST($3);
+								//printf("Eval result : %d\n",rez);
+								//freeAST($3);
+								//is_eval = 0;
+								nr_expresii=0;
+								memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+							}
 	 ;
 
 expresie: expresie '+' expresie  	{
@@ -394,14 +408,22 @@ expresie: expresie '+' expresie  	{
 								nr_elemente_expresie++;
 							}
  | '(' expresie ')' {}
- | NR 	{	
- 			nume_typeof = $1;
-			typeOf = "int";
-			is_int=1;
-			tipuri_expresii[nr_expresii] = 1;
-			nr_expresii++;
-			int a = $1;
-			$$ = buildAST(&a, 0, 0, INT);
+ | NR 	{
+			if(is_eval == 1)
+			{
+				printf("%d\n",$1);
+			}
+			else
+			{
+				nume_typeof = $1;
+				typeOf = "int";
+				is_int=1;
+				tipuri_expresii[nr_expresii] = 1;
+				nr_expresii++;
+				int a = $1;
+				$$ = buildAST(&a, 0, 0, INT);
+				printf("Ceva\n");
+			}
 		}
  | STRING 	{
 				nume_typeof = $1;
