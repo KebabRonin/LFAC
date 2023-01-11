@@ -13,3 +13,28 @@ Ret_type: {Tip:bool, Const?:0, size:1},
 Params : [
 	]
 }
+{
+Name: testFunction,
+Ret_type: {Tip:int, Const?:0, size:1},
+Params : [
+	{Nume: x, Tip:int, Const?:0, size:1}
+	{Nume: z, Tip:float, Const?:0, size:1}
+	]
+}
+{
+Name: testF,
+Ret_type: {Tip:int, Const?:0, size:1},
+Params : [
+	{Nume: x, Tip:int, Const?:0, size:1}
+	{Nume: z, Tip:int, Const?:0, size:1}
+	]
+}
+{
+Name: test,
+Ret_type: {Tip:int, Const?:0, size:1},
+Params : [
+	{Nume: param1, Tip:int, Const?:0, size:1}
+	{Nume: param2, Tip:int, Const?:0, size:1}
+	{Nume: f, Tip:float, Const?:0, size:1}
+	]
+}

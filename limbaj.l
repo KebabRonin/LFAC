@@ -6,7 +6,7 @@
 %}
 %option noyywrap
 %%
-	/*"array" {return ARRAY;}*/
+"//"(.*) {}
 "int"|"float"|"char"|"string"|"bool" {yylval.strval=strdup(yytext); return TIP;}
 "begin_progr" {return BGIN;}
 "_global" {return GLOBDEF;}

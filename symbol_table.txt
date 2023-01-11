@@ -1,3 +1,10 @@
+Nume: x, Tip:int, Const?:0, size:1
+Nume: x1, Tip:int, Const?:0, size:1
+Nume: x2, Tip:int, Const?:0, size:1
+Nume: y, Tip:int, Const?:0, size:1
+Nume: arr, Tip:int, Const?:0, size:10
+Nume: fl, Tip:float, Const?:0, size:1
+Nume: f1, Tip:float, Const?:0, size:1
 Nume: b, Tip:string, Const?:0, size:100
 Nume: j, Tip:char, Const?:0, size:1
 Nume: a, Tip:float, Const?:0, size:1

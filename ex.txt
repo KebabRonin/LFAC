@@ -1,4 +1,14 @@
 _global
+//Acest fisier ar trebui sa se compileze fara nici o eroare. Folositi sintaxa proprie, desigur
+int x ;
+int x1;
+int x2;
+int y;
+int arr[10];
+//declaratii de  variabile de toate tipurile de date
+float fl = 20.0 ;
+float f1;
+
 
 string b[100];
 char j;
@@ -10,15 +20,57 @@ _fnc
 int f(string b[200][3],char j,float a) {a = 1.2;}
 bool g() {m = false;}
 
+
+int testFunction(int x, float z) {
+  // puteti pune orice aici 
+  a = 1.2;
+}
+
+//!trebuie cu overloading
+
+int testF(int x, int z) {
+  //puteti pune orice aici
+  m = false;
+}
+
+int test(int param1, int param2, float f) {
+ // puteti pune orice aici
+ //param1 = 2;
+ a = 1.2;
+}
+
 _userdef
+//niste tipuri de date definite de utilizator clase, struct, ce mai aveti voi
 
 struct Mystruct {int fd;}fd;
 
 
 begin_progr
-	o = 80;
-	Eval(o);
-	m = true;
-	Eval(5+700/(o-10));
-	b[1] = "salut" + "!";
+//1. exemple de declaratii/initializari/utilizari de obiecte 
+
+//2. exemple de instructiuni de asignare; folositi in partea stanga variabile avand toate tipurile de date; folositi in partea stanga orice alt element posibil in limbajul vostru  
+//ex:
+fl = 30.0 ; 
+//etc
+
+//3. exemple de instructiuni  for, while if, etc
+
+//4. urmatorul bloc de cod, cu sintaxa voastra proprie, desigur
+
+x = 10; x1 = 20; x2 = 30; y = 100;
+if (x1 + test(x1,x2,fl) < 5 + x1 and ((x > 2 or x1 < 4+x2) or x == 2)) {
+	x = 2;
+	//si alte lucruri aici
+}
+
+b[1] = "salut";
+
+x = test(x, y, fl) + (30 - y * arr[2]) - 10;
+x1 = x*100 + 5 * 100 + arr[2];
+Eval(x*10-100);
+Eval(x1);
+Eval(x2* 10-200) ;
+Eval(x+ test(x1,x,fl)) ; 	
+TypeOf(x+23);
+TypeOf(fl-30.0);
 end_progr
