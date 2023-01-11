@@ -490,7 +490,7 @@ struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right
     else {
         self->valoare = 0;
     }
-    printf("%d, %d\n",self->valoare,self->tip);
+    //printf("%d, %d\n",self->valoare,self->tip);
     return self;
 }
 int is_ASTint(struct AstNode* root) {

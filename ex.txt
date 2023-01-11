@@ -20,5 +20,5 @@ begin_progr
 	Eval(o);
 	m = true;
 	Eval(5+700/(o-10));
-	b = "salut" + "!";
+	b[1] = "salut" + "!";
 end_progr

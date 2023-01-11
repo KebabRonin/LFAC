@@ -242,7 +242,7 @@ list : statement ';'
      ;
 
 
-assignment : ID ASSIGN expresie {
+assignment : ID lista_array ASSIGN expresie {
 									if(exists_variable($1)<0)
 									{
 										char* error[100];
@@ -252,13 +252,14 @@ assignment : ID ASSIGN expresie {
 										yyerror(strdup(error));
 										exit(0);
 									}
+									check_arrayList($1, $2);
 									verify_assignement($1,tipuri_expresii,nr_expresii);
 									nr_expresii=0;
 									memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
 
 									int val = exists_variable($1);
-									assign(val, $3);
-									freeAST($3);
+									assign(val, $4);
+									freeAST($4);
 								}
 		   ;
 
