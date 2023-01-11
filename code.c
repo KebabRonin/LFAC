@@ -479,30 +479,26 @@ void freeAST(struct AstNode* self) {
     free(self);
 }
 int EvalAST(struct AstNode* root) {
-    printf("%d\n",root);
-    // root->valoare=1;
-    // printf("%d\n",root->valoare);
-    // if(root->tip == INT) 
-    // {
-    //     printf("%d\n",root->valoare);
-    //     return root->valoare;
-    // }
-    // else if (root->tip == OP) {
-    //     switch (root->valoare)
-    //     {
-    //     case '+':
-    //         return EvalAST(root->Left) + EvalAST(root->Right);
-    //     case '-':
-    //         return EvalAST(root->Left) - EvalAST(root->Right);
-    //     case '*':
-    //         return EvalAST(root->Left) * EvalAST(root->Right);
-    //     case '/':
-    //         return EvalAST(root->Left) / EvalAST(root->Right);
-    //     default:
-    //         printf("Unknown operator\n");
-    //         return 0;
-    //     }
-    // }
+    if(root->tip == INT) 
+    {
+        return root->valoare;
+    }
+    else if (root->tip == OP) {
+        switch (root->valoare)
+        {
+        case '+':
+            return (EvalAST(root->Left) + EvalAST(root->Right));
+        case '-':
+            return (EvalAST(root->Left) - EvalAST(root->Right));
+        case '*':
+            return EvalAST(root->Left) * EvalAST(root->Right);
+        case '/':
+            return EvalAST(root->Left) / EvalAST(root->Right);
+        default:
+            printf("Unknown operator\n");
+            return 0;
+        }
+    }
     // else if (root->tip == IDENTIFIER) {
     //     ;// caut in sy_table pt identifier si returnez valoarea
     // }

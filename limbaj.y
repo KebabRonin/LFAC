@@ -381,11 +381,9 @@ param_apel : ID {
 
 eval : EVAL '(' expresie ')' {	
 								verify_expresie(tipuri_expresii,nr_expresii);
-								// is_eval=1;
-								// int rez = EvalAST($3);
-								//printf("Eval result : %d\n",rez);
-								//freeAST($3);
-								//is_eval = 0;
+								int rez = EvalAST($3);
+								printf("Eval result : %d\n",rez);
+								freeAST($3);
 								nr_expresii=0;
 								memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
 							}
@@ -394,36 +392,36 @@ eval : EVAL '(' expresie ')' {
 expresie: expresie '+' expresie  	{
 										strcpy(elemente_expresie[nr_elemente_expresie],"+");
 										nr_elemente_expresie++;
+										char k = '+';
+										$$ = buildAST(&k, $1, $3, OP);
 									}
  | expresie '*' expresie 	{
 								strcpy(elemente_expresie[nr_elemente_expresie],"*");
 								nr_elemente_expresie++;
+								char k = '*';
+								$$ = buildAST(&k, $1, $3, OP);
 							}
  | expresie '-' expresie 	{
 								strcpy(elemente_expresie[nr_elemente_expresie],"-");
 								nr_elemente_expresie++;
+								char k = '-';
+								$$ = buildAST(&k, $1, $3, OP);
 							}
  | expresie '/' expresie 	{
 								strcpy(elemente_expresie[nr_elemente_expresie],"/");
 								nr_elemente_expresie++;
+								char k = '/';
+								$$ = buildAST(&k, $1, $3, OP);
 							}
- | '(' expresie ')' {}
+ | '(' expresie ')' {$$ = $2;}
  | NR 	{
-			if(is_eval == 1)
-			{
-				printf("%d\n",$1);
-			}
-			else
-			{
-				nume_typeof = $1;
-				typeOf = "int";
-				is_int=1;
-				tipuri_expresii[nr_expresii] = 1;
-				nr_expresii++;
-				int a = $1;
-				$$ = buildAST(&a, 0, 0, INT);
-				printf("Ceva\n");
-			}
+			nume_typeof = $1;
+			typeOf = "int";
+			is_int=1;
+			tipuri_expresii[nr_expresii] = 1;
+			nr_expresii++;
+			int a = $1;
+			$$ = buildAST(&a, 0, 0, INT);
 		}
  | STRING 	{
 				nume_typeof = $1;

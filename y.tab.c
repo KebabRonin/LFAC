@@ -605,8 +605,8 @@ static const yytype_int16 yyrline[] =
      219,   220,   223,   232,   233,   236,   237,   241,   242,   243,
      244,   248,   264,   265,   291,   318,   319,   320,   323,   324,
      325,   326,   329,   330,   333,   336,   339,   342,   345,   348,
-     349,   350,   351,   359,   360,   363,   382,   394,   398,   402,
-     406,   410,   411,   428,   435,   442,   449,   462,   505,   559
+     349,   350,   351,   359,   360,   363,   382,   392,   398,   404,
+     410,   416,   417,   426,   433,   440,   447,   460,   503,   557
 };
 #endif
 
@@ -1926,22 +1926,22 @@ yyreduce:
 #line 382 "limbaj.y"
                              {	
 								verify_expresie(tipuri_expresii,nr_expresii);
-								// is_eval=1;
-								// int rez = EvalAST($3);
-								//printf("Eval result : %d\n",rez);
-								//freeAST($3);
-								//is_eval = 0;
+								int rez = EvalAST((yyvsp[-1].ast));
+								printf("Eval result : %d\n",rez);
+								freeAST((yyvsp[-1].ast));
 								nr_expresii=0;
 								memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
 							}
-#line 1938 "y.tab.c"
+#line 1936 "y.tab.c"
     break;
 
   case 77:
-#line 394 "limbaj.y"
+#line 392 "limbaj.y"
                                         {
 										strcpy(elemente_expresie[nr_elemente_expresie],"+");
 										nr_elemente_expresie++;
+										char k = '+';
+										(yyval.ast) = buildAST(&k, (yyvsp[-2].ast), (yyvsp[0].ast), OP);
 									}
 #line 1947 "y.tab.c"
     break;
@@ -1951,58 +1951,56 @@ yyreduce:
                                 {
 								strcpy(elemente_expresie[nr_elemente_expresie],"*");
 								nr_elemente_expresie++;
+								char k = '*';
+								(yyval.ast) = buildAST(&k, (yyvsp[-2].ast), (yyvsp[0].ast), OP);
 							}
-#line 1956 "y.tab.c"
+#line 1958 "y.tab.c"
     break;
 
   case 79:
-#line 402 "limbaj.y"
+#line 404 "limbaj.y"
                                 {
 								strcpy(elemente_expresie[nr_elemente_expresie],"-");
 								nr_elemente_expresie++;
+								char k = '-';
+								(yyval.ast) = buildAST(&k, (yyvsp[-2].ast), (yyvsp[0].ast), OP);
 							}
-#line 1965 "y.tab.c"
+#line 1969 "y.tab.c"
     break;
 
   case 80:
-#line 406 "limbaj.y"
+#line 410 "limbaj.y"
                                 {
 								strcpy(elemente_expresie[nr_elemente_expresie],"/");
 								nr_elemente_expresie++;
+								char k = '/';
+								(yyval.ast) = buildAST(&k, (yyvsp[-2].ast), (yyvsp[0].ast), OP);
 							}
-#line 1974 "y.tab.c"
-    break;
-
-  case 81:
-#line 410 "limbaj.y"
-                    {}
 #line 1980 "y.tab.c"
     break;
 
+  case 81:
+#line 416 "limbaj.y"
+                    {(yyval.ast) = (yyvsp[-1].ast);}
+#line 1986 "y.tab.c"
+    break;
+
   case 82:
-#line 411 "limbaj.y"
+#line 417 "limbaj.y"
         {
-			if(is_eval == 1)
-			{
-				printf("%d\n",(yyvsp[0].intval));
-			}
-			else
-			{
-				nume_typeof = (yyvsp[0].intval);
-				typeOf = "int";
-				is_int=1;
-				tipuri_expresii[nr_expresii] = 1;
-				nr_expresii++;
-				int a = (yyvsp[0].intval);
-				(yyval.ast) = buildAST(&a, 0, 0, INT);
-				printf("Ceva\n");
-			}
+			nume_typeof = (yyvsp[0].intval);
+			typeOf = "int";
+			is_int=1;
+			tipuri_expresii[nr_expresii] = 1;
+			nr_expresii++;
+			int a = (yyvsp[0].intval);
+			(yyval.ast) = buildAST(&a, 0, 0, INT);
 		}
-#line 2002 "y.tab.c"
+#line 2000 "y.tab.c"
     break;
 
   case 83:
-#line 428 "limbaj.y"
+#line 426 "limbaj.y"
                 {
 				nume_typeof = (yyvsp[0].strval);
 				typeOf = "string";
@@ -2010,11 +2008,11 @@ yyreduce:
 				tipuri_expresii[nr_expresii] = 4;
 				nr_expresii++;
 			}
-#line 2014 "y.tab.c"
+#line 2012 "y.tab.c"
     break;
 
   case 84:
-#line 435 "limbaj.y"
+#line 433 "limbaj.y"
                 {
 				f = (yyvsp[0].floatval);
 				typeOf = "float";
@@ -2022,11 +2020,11 @@ yyreduce:
 				tipuri_expresii[nr_expresii] = 2;
 				nr_expresii++;
 			}
-#line 2026 "y.tab.c"
+#line 2024 "y.tab.c"
     break;
 
   case 85:
-#line 442 "limbaj.y"
+#line 440 "limbaj.y"
         {
 			nume_typeof = (yyvsp[0].charval);
 			typeOf = "char";
@@ -2034,11 +2032,11 @@ yyreduce:
 			tipuri_expresii[nr_expresii] = 3;
 			nr_expresii++;
  		}
-#line 2038 "y.tab.c"
+#line 2036 "y.tab.c"
     break;
 
   case 86:
-#line 449 "limbaj.y"
+#line 447 "limbaj.y"
         {
 			if((yyvsp[0].intval) == 1)
 			{
@@ -2052,11 +2050,11 @@ yyreduce:
 			tipuri_expresii[nr_expresii] = 5;
 			nr_expresii++;
 		}
-#line 2056 "y.tab.c"
+#line 2054 "y.tab.c"
     break;
 
   case 87:
-#line 462 "limbaj.y"
+#line 460 "limbaj.y"
                         {
 			if(exists_variable((yyvsp[-1].strval))==1)
 			{
@@ -2100,11 +2098,11 @@ yyreduce:
 				exit(0);
 			}
  		}
-#line 2104 "y.tab.c"
+#line 2102 "y.tab.c"
     break;
 
   case 88:
-#line 505 "limbaj.y"
+#line 503 "limbaj.y"
                                 {
 								if(exists_function((yyvsp[-3].strval))==1)
 								{
@@ -2159,11 +2157,11 @@ yyreduce:
 									exit(0);
 								}
 							}
-#line 2163 "y.tab.c"
+#line 2161 "y.tab.c"
     break;
 
   case 89:
-#line 559 "limbaj.y"
+#line 557 "limbaj.y"
                 {
 				if(exists_function((yyvsp[-2].strval))==1)
 				{
@@ -2217,11 +2215,11 @@ yyreduce:
 					exit(0);
 				}
 			}
-#line 2221 "y.tab.c"
+#line 2219 "y.tab.c"
     break;
 
 
-#line 2225 "y.tab.c"
+#line 2223 "y.tab.c"
 
       default: break;
     }
@@ -2453,7 +2451,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 613 "limbaj.y"
+#line 611 "limbaj.y"
 
 void yyerror(char * s)
 {
