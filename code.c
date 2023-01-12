@@ -1,9 +1,55 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <errno.h>
 #include "code.h"
 
+extern int yylineno;
 
+int isNumeric(const char *str) 
+{
+    while(*str != '\0')
+    {
+        if(*str < '0' || *str > '9')
+            return 0;
+        str++;
+    }
+    return 1;
+}
+int float_test(const char *s) {
+  char *endptr;
+  errno = 0;
+  float f = strtof(s, &endptr);
+  if (s == endptr)  {
+    return 0;
+  }
+  while (isspace((unsigned char) *endptr)) {  
+    endptr++;
+  }   
+  if (*endptr) {
+    return 0; 
+  }
+
+  if (errno) {
+    return errno; 
+  }  
+
+  return 1;
+}
+int validateString(const char* s)
+{
+    const char c;
+    for (int i=0;i<strlen(s);i++) {
+        if (!isalpha(s[i]) && !isspace(s[i]))
+            return 0;
+    }
+
+    return 1;
+}
 void make_sym_table(struct tabela_simboluri* p) {
     if(p == 0) sym_table = &sy_table;
     else sym_table = p;
@@ -119,18 +165,19 @@ void verify_assignement(char* leftvalue, int tipuri_expresii[100],int nr_expresi
 {
     int i=0;
     int primul = tipuri_expresii[0];
+
     for(i=1;i<nr_expresii;i++)
     {
         if(tipuri_expresii[i] != primul)
         {
-            printf("tipul lvalue = %d,\ntipul rvalue = %d\n",get_typeof(leftvalue),primul);
+            printf("lvalue type = %d,\nrvalue type = %d\n",tipuri_expresii[i],primul);
             yyerror("Operands in the right side don't have the same type.");
             exit(0);
         }
     }
     if(get_typeof(leftvalue) != primul)
     {
-        printf("tipul lvalue = %d,\ntipul rvalue = %d\n",get_typeof(leftvalue),primul);
+        printf("lvalue type = %d,\nrvalue type = %d\n",get_typeof(leftvalue),primul);
         yyerror("The left side and the right side don't have the same type.");
         exit(0);
     }
@@ -220,7 +267,7 @@ void check_arrayList(char* nume, struct list* array_sizes) {
     for(int j = 0; j < array_sizes->nr_dimensiuni; j++) {
         if( 0 > *((int*)(array_sizes->dimensiune[j])) || *((int*)(array_sizes->dimensiune[j])) >= *((int*)(sy_table.entries[i].tip->size->dimensiune[j]))) {
             printf("%d,%d\n",*((int*)(array_sizes->dimensiune[j])), *((int*)(sy_table.entries[i].tip->size->dimensiune[j])));
-            yyerror("index out of bounds");
+            yyerror("index out of bounds.");
             exit(0);
         }
     }
@@ -287,17 +334,40 @@ void verify_parameters(char* s,char parameters[100][100],int nr_parametri)
         }
         if(strcmp(parameters[j],fn_table.entries[k].param[j]->tip->tip)!=0)
         {
-            char error[100];
-            char aux[100];
-            strcpy(error,"Parameter type of function \"");
-            strcat(error,s);
-            strcat(error, "\" is ");
-            strcat(error,parameters[j]);
-            strcat(error, ", when it should be ");
-            strcat(error,fn_table.entries[k].param[j]->tip->tip);
-            strcat(error, ".");
-            yyerror(strdup(error));
-            exit(0);
+            if (float_test(parameters[j]) && !(isNumeric(parameters[j]) && strcmp(fn_table.entries[k].param[j]->tip->tip,"int")==0)) 
+            {
+                char error[100];
+                char aux[100];
+                strcpy(error,"Parameter type of function ");
+                strcat(error, "is not ");
+                strcat(error,fn_table.entries[k].param[j]->tip->tip);
+                strcat(error, ".");
+                yyerror(strdup(error));
+                exit(0);
+            }
+            else if (!isNumeric(parameters[j]) && !(validateString(parameters[j]) && strcmp(fn_table.entries[k].param[j]->tip->tip,"string")==0)) 
+            {
+                char error[100];
+                char aux[100];
+                strcpy(error,"Parameter type of function ");
+                strcat(error, "is not ");
+                strcat(error,fn_table.entries[k].param[j]->tip->tip);
+                strcat(error, ".");
+                yyerror(strdup(error));
+                exit(0);
+            }
+            
+            else if((float_test(parameters[j]) && strcmp(fn_table.entries[k].param[j]->tip->tip,"float")==0))
+            {
+                char error[100];
+                char aux[100];
+                strcpy(error,"Parameter type of function ");
+                strcat(error, "is not ");
+                strcat(error,fn_table.entries[k].param[j]->tip->tip);
+                strcat(error, ".");
+                yyerror(strdup(error));
+                exit(0);
+            }
         }
     }
 }
@@ -537,7 +607,6 @@ void freeAST(struct AstNode* self) {
     free(self);
 }
 int EvalAST(struct AstNode* root) {
-    //printf("Root type: %d\n",root->tip);
     if(root->tip == INT) 
     {
         return root->valoare;
@@ -554,7 +623,7 @@ int EvalAST(struct AstNode* root) {
         case '/':
             return EvalAST(root->Left) / EvalAST(root->Right);
         default:
-            printf("EvalERROR: Unknown operator\n");
+            yyerror("Unknown operator");
             exit(0);
         }
     }
@@ -565,18 +634,16 @@ int EvalAST(struct AstNode* root) {
             return 0;
     }
     else if (root->tip == FNC) {
-        printf("Function found, since function calls are not implemented it will return 0\n");
+        printf("NOTE : Function found, since function calls are not implemented it will return 0.\tLINE : %d\n",yylineno);
         return 0;
     }
     else {
-        printf("%d\n",root->tip);
-        yyerror("Type unsupported for eval");
         return -1;
     }
 }
 void assign(int index, struct AstNode* root) {
     if(index < 0 || index >= sym_table->nr_entries) {
-        printf("Error assign: variable index is out of bounds\n");
+        yyerror("Variable index is out of bounds.");
         exit(2);
     }
     if (sym_table->entries[index].tip->is_const == 1) {
@@ -587,6 +654,6 @@ void assign(int index, struct AstNode* root) {
         *((int*)(sym_table->entries[index].valoare)) = EvalAST(root);
     }
     else {
-        yyerror("Assignment works only on int");
+        printf("NOTE : Assignment works only on int\tLINE : %d\n",yylineno);
     }
 }

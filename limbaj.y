@@ -23,6 +23,7 @@ char elemente_expresie[100][100];
 int nr_expresii = 0;
 int nr_elemente_expresie = 0;
 int is_eval = 0;
+int is_parameter=0;
 char parametri[100][100];
 
 struct AstNode* buildAST(char* root, struct AstNode* left, struct AstNode* right, int type);
@@ -59,11 +60,15 @@ struct AstNode* ast;
 %left IF
 %left ELSE
 %%
-progr: declaratii_globale declaratii_fnc declaratii_structuri bloc {printf("program corect sintactic\n");}
+progr: declaratii_globale declaratii_fnc declaratii_structuri bloc {printf("\nCORRECT PROGRAM\n");}
 	 ;
 
 declaratii_globale : /*epsilon*/
-				   | GLOBDEF { make_sym_table(0); } declaratii_globale_atomic {export_sy_table();}
+				   | GLOBDEF { make_sym_table(0); } declaratii_globale_atomic 	{	
+																					export_sy_table();
+																					nr_expresii=0;
+																					memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+																				}
 				   ;
 
 declaratii_globale_atomic : /*epsilon*/
@@ -140,39 +145,32 @@ typeof : TYPEOF '(' expresie ')'{
 									{
 										if(is_char==1)
 										{
-											printf("TypeOf('%c') : %s\n",nume_typeof,typeOf);
+											printf("TypeOf('%c') : %s\tLINE : %d\n",nume_typeof,typeOf,yylineno);
 											is_char=0;
 										}
 										else if(is_string==1)
 										{
-											printf("TypeOf(\"%s\") : %s\n",nume_typeof,typeOf);
+											printf("TypeOf(\"%s\") : %s\tLINE : %d\n",nume_typeof,typeOf,yylineno);
 											is_string=0;
 										}
 										else if(is_int==1)
 										{
-											printf("TypeOf(%d) : %s\n",nume_typeof,typeOf);
+											printf("TypeOf(%d) : %s\tLINE : %d\n",nume_typeof,typeOf,yylineno);
 											is_int=0;
 										}
 										else if(is_float==1)
 										{
-											printf("TypeOf(%f) : %s\n",f,typeOf);
+											printf("TypeOf(%f) : %s\tLINE : %d\n",f,typeOf,yylineno);
 											is_float=0;
 										}
 										else
 										{
-											printf("TypeOf(%s) : %s\n",nume_typeof,typeOf);
+											printf("TypeOf(%s) : %s\tLINE : %d\n",nume_typeof,typeOf,yylineno);
 										}
 									}
 									else
 									{
-										printf("TypeOf() : %s\n",typeOf);
-										// int i=0;
-										// printf("TypeOf(");
-										// for(i=0;i<nr_elemente_expresie;i++)
-										// {
-										// 	printf("%s",elemente_expresie[i]);
-										// }
-										// printf(") : %s\n",typeOf);
+										printf("TypeOf() : %s\tLINE : %d\n",typeOf,yylineno);
 									}
 									
 									nr_expresii=0;
@@ -230,7 +228,8 @@ param : tip_date ID lista_array {
 									$$->valoare = 0;
 								}
       ;
-bloc : BGIN list END
+bloc : BGIN {nr_expresii=0;
+			memset(tipuri_expresii, 0, sizeof(tipuri_expresii));} list END
 	 | BGIN END
      ;
 
@@ -287,10 +286,10 @@ assignment : ID lista_array ASSIGN expresie {
 		   ;
 
 statement : assignment
-          | ID '(' lista_apel ')' 	{
+          | ID '(' {is_parameter=1;} lista_apel ')' 	{
+										
 										if(exists_function($1)>=0)
 										{
-											printf("%s function exists.\n",$1);
 											verify_parameters($1,parameters,nr_parametri);
 											if(verify_no_parameters($1)==1)
 											{
@@ -316,7 +315,6 @@ statement : assignment
 		  | ID '('')'	{
 							if(exists_function($1)>=0)
 							{
-								printf("%s function exists.\n",$1);
 								verify_parameters($1,parameters,nr_parametri);
 
 								if(verify_no_parameters($1)==1)
@@ -381,31 +379,22 @@ boolean_expr : '(' boolean_expr ')'
 			 ;
 
 
-lista_apel : param_apel {}
-            | lista_apel ','  param_apel {}
+lista_apel : expresie 	{
+							verify_expresie(tipuri_expresii,nr_expresii);
+							is_parameter=1;
+							nr_expresii=0;
+							memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+						}
+            | lista_apel ','  expresie 	{
+											verify_expresie(tipuri_expresii,nr_expresii);
+											is_parameter=1;
+											nr_expresii=0;
+											memset(tipuri_expresii, 0, sizeof(tipuri_expresii));
+										}
             ;
 
-param_apel : ID {
-					if(exists_variable($1)>=0)
-					{
-						strcpy(parameters[nr_parametri],$1);
-						nr_parametri++;
-					}
-					else
-					{
-						char* error[100];
-						strcpy(error,"Variable \"");
-						strcat(error,$1);
-						strcat(error, "\" is not declared.");
-						yyerror(strdup(error));
-						exit(0);
-					}		
-				}
-      	   ;
-
-
 eval : EVAL {nr_expresii=0;
-			 memset(tipuri_expresii, 0, sizeof(tipuri_expresii));}'(' expresie ')' {	
+			 					memset(tipuri_expresii, 0, sizeof(tipuri_expresii));}'(' expresie ')' {	
 								verify_expresie(tipuri_expresii,nr_expresii);
 								if(is_ASTint($4) == 0) {
 									yyerror("Type unsupported for eval");
@@ -413,7 +402,7 @@ eval : EVAL {nr_expresii=0;
 								}
 								
 								int rez = EvalAST($4);
-								printf("Eval result : %d\n",rez);
+								printf("Eval Result : %d\tLINE: %d\n",rez,yylineno);
 								freeAST($4);
 								
 								nr_expresii=0;
@@ -447,6 +436,13 @@ expresie: expresie '+' expresie  	{
 							}
  | '(' expresie ')' {$$ = $2;}
  | NR 	{
+			if(is_parameter==1)
+			{
+				//strcpy(parameters[nr_parametri],$1);
+				sprintf(parameters[nr_parametri],"%d",$1);
+				nr_parametri++;
+				is_parameter=0;
+			}
 			nume_typeof = $1;
 			typeOf = "int";
 			is_int=1;
@@ -456,6 +452,13 @@ expresie: expresie '+' expresie  	{
 			$$ = buildAST(&a, 0, 0, INT);
 		}
  | STRING 	{
+				if(is_parameter==1)
+				{
+					strcpy(parameters[nr_parametri],$1);
+					//sprintf(parameters[nr_parametri],"%d",$1);
+					nr_parametri++;
+					is_parameter=0;
+				}
 				nume_typeof = $1;
 				typeOf = "string";
 				is_string=1;
@@ -465,6 +468,13 @@ expresie: expresie '+' expresie  	{
 				$$ = buildAST(&a, 0, 0, STR);
 			}
  | FLOAT 	{
+				if(is_parameter==1)
+				{
+					//strcpy(parameters[nr_parametri],$1);
+					sprintf(parameters[nr_parametri],"%f",$1);
+					nr_parametri++;
+					is_parameter=0;
+				}
 				f = $1;
 				typeOf = "float";
 				is_float=1;
@@ -474,6 +484,13 @@ expresie: expresie '+' expresie  	{
 				$$ = buildAST(&a, 0, 0, FLT);
 			}
  | CHAR {
+			if(is_parameter==1)
+			{
+				//strcpy(parameters[nr_parametri],$1);
+				sprintf(parameters[nr_parametri],"%c",$1);
+				nr_parametri++;
+				is_parameter=0;
+			}
 			nume_typeof = $1;
 			typeOf = "char";
 			is_char=1;
@@ -483,6 +500,13 @@ expresie: expresie '+' expresie  	{
 				$$ = buildAST(&a, 0, 0, CHR);
  		}
  | BOOL {
+			if(is_parameter==1)
+			{
+				//strcpy(parameters[nr_parametri],$1);
+				sprintf(parameters[nr_parametri],"%d",$1);
+				nr_parametri++;
+				is_parameter=0;
+			}
 			if($1 == 1)
 			{
 				nume_typeof = "true";
@@ -498,6 +522,56 @@ expresie: expresie '+' expresie  	{
 			$$ = buildAST(&a, 0, 0, BOL);
 		}
  | ID lista_array	{
+						if(exists_variable($1)>=0)
+						{
+							if(is_parameter==1)
+							{
+								strcpy(parameters[nr_parametri],$1);
+								nr_parametri++;
+								is_parameter=0;
+							}
+							
+							check_arrayList($1, $2);
+							nume_typeof = $1;
+							if(get_typeof($1)==1)
+							{
+								typeOf = "int";
+							}
+							else if(get_typeof($1)==2)
+							{
+								typeOf = "float";
+							}
+							else if(get_typeof($1)==3)
+							{
+								typeOf = "char";
+							}
+							else if(get_typeof($1)==4)
+							{
+								typeOf = "string";
+							}
+							else if(get_typeof($1)==5)
+							{
+								typeOf = "bool";
+							}
+							else {
+								typeOf = structNames[get_typeof($1)-6];
+							}
+							tipuri_expresii[nr_expresii] = get_typeof($1);
+							nr_expresii++;
+							nr_elemente_expresie++;
+							$$ = buildAST($1, 0, 0, IDENTIFIER);
+						}
+						else
+						{
+							char* error[100];
+							strcpy(error,"Variable \"");
+							strcat(error,$1);
+							strcat(error, "\" is not declared.");
+							yyerror(strdup(error));
+							exit(0);
+						}
+					}
+ | ID lista_array '.' ID	{
 			if(exists_variable($1)>=0)
 			{
 				check_arrayList($1, $2);
@@ -541,51 +615,8 @@ expresie: expresie '+' expresie  	{
 				exit(0);
 			}
  		}
-| ID lista_array '.' ID	{
-			if(exists_variable($1)>=0)
-			{
-				check_arrayList($1, $2);
-				nume_typeof = $1;
-				if(get_typeof($1)==1)
-				{
-					typeOf = "int";
-				}
-				else if(get_typeof($1)==2)
-				{
-					typeOf = "float";
-				}
-				else if(get_typeof($1)==3)
-				{
-					typeOf = "char";
-				}
-				else if(get_typeof($1)==4)
-				{
-					typeOf = "string";
-				}
-				else if(get_typeof($1)==5)
-				{
-					typeOf = "bool";
-				}
-				else {
-					typeOf = structNames[get_typeof($1)-6];
-				}
-				tipuri_expresii[nr_expresii] = get_typeof($1);
-				strcpy(elemente_expresie[nr_elemente_expresie],$1);
-				nr_expresii++;
-				nr_elemente_expresie++;
-				$$ = buildAST($1, 0, 0, IDENTIFIER);
-			}
-			else
-			{
-				char* error[100];
-				strcpy(error,"Variable \"");
-				strcat(error,$1);
-				strcat(error, "\" is not declared.");
-				yyerror(strdup(error));
-				exit(0);
-			}
- 		}
- | ID '(' lista_apel ')' 	{
+ | ID '(' {is_parameter = 1;nr_parametri=0;}lista_apel ')' 	{
+								
 								if(exists_function($1)>=0)
 								{
 									verify_parameters($1,parameters,nr_parametri);
@@ -698,7 +729,7 @@ expresie: expresie '+' expresie  	{
 %%
 void yyerror(char * s)
 {
-  	printf("ERROR: %s line:%d\n",s,yylineno);
+  	printf("ERROR: %s\tLINE:%d\n",s,yylineno);
 }
 
 int main(int argc, char** argv)

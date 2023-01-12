@@ -1,19 +1,4 @@
 {
-Name: f,
-Ret_type: {Tip:int, Const?:0, size:1},
-Params : [
-	{Nume: b, Tip:string, Const?:0, size:600}
-	{Nume: j, Tip:char, Const?:0, size:1}
-	{Nume: a, Tip:float, Const?:0, size:1}
-	]
-}
-{
-Name: g,
-Ret_type: {Tip:bool, Const?:0, size:1},
-Params : [
-	]
-}
-{
 Name: testFunction,
 Ret_type: {Tip:int, Const?:0, size:1},
 Params : [
